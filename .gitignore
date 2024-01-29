@@ -6,4 +6,4 @@ node_modules/
 __pycache__
 db.sqlite3
 media
-api/whole.json
+/api/whole.json
