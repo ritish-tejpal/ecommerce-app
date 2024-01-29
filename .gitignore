@@ -1,1 +1,8 @@
 .venv
+frontend/node_modules
+api/*.log
+api/*.pot
+api/*.pyc
+api/__pycache__
+api/db.sqlite3
+api/media
