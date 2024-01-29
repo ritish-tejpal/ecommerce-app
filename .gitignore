@@ -1,8 +1,9 @@
 .venv
-frontend/node_modules
-api/*.log
-api/*.pot
-api/*.pyc
-api/__pycache__
-api/db.sqlite3
-api/media
+node_modules/
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
+api/whole.json
