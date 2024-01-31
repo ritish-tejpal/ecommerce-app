@@ -5,7 +5,7 @@ function UserInformation() {
   const [userData, setUserData] = useState([]);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/users/')
+    axios.get('http://127.0.0.1:8000/accounts/users/')
       .then(response => {
         setUserData(response.data);
       })

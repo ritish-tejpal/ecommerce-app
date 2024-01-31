@@ -39,9 +39,14 @@ OAUTH2_PROVIDER = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    ),
+
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     ),
 }
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -54,8 +59,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'accounts',
+    'products',
 ]
 
+LOGIN_URL='/admin/' 
 
 AUTH_USER_MODEL = 'accounts.User'
 

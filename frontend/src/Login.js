@@ -10,7 +10,7 @@ function Login(props) {
     const [password, setPassword] = useState('');
     
     function postLogin() {
-        axios.post('http://localhost:8000/login/', {
+        axios.post('http://localhost:8000/accounts/login/', {
         username,
         password
         }).then(result => {
