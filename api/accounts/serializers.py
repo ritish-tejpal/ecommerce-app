@@ -11,9 +11,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'phone_number', 'password']
         read_only_fields = ['id']
-        # extra_kwargs = {
-        #     'password': {'write_only': True}
-        # }
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
         def create(self, validated_data):
             validated_data['password'] = make_password(validated_data.get('password'))
@@ -33,6 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+    
 
     def validate(self, data):
 

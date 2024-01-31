@@ -1,5 +1,3 @@
-// Create a login page for the user to enter their username and password using functional components
-
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -10,16 +8,21 @@ function Login(props) {
     const [password, setPassword] = useState('');
     
     function postLogin() {
-        axios.post('http://localhost:8000/accounts/login/', {
+        axios
+        .post('http://localhost:8000/accounts/login/', {
         username,
         password
-        }).then(result => {
+        })
+        
+        .then(result => {
         if (result.status === 200) {
             setLoggedIn(true);
         } else {
             setIsError(true);
         }
-        }).catch(e => {
+        })
+        
+        .catch(e => {
         setIsError(true);
         });
     }

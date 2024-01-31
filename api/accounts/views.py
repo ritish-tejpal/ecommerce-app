@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from .models import User
 from .serializers import UserSerializer, LoginSerializer
 from oauth2_provider.views.generic import ProtectedResourceView
-from rest_framework.permissions import IsAuthenticated
+from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 
 
 class UserListCreateView(mixins.ListModelMixin,
@@ -13,7 +13,7 @@ class UserListCreateView(mixins.ListModelMixin,
                          ProtectedResourceView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [TokenHasReadWriteScope]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -36,7 +36,7 @@ class UserRetrieveUpdateDestroyView(mixins.RetrieveModelMixin,
                                     ProtectedResourceView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [TokenHasReadWriteScope]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
