@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(cyy&tct7#oifok1y5s+x1l1i@m#*8v)h4$*=$_x#%@%=jy_jd'
+# SECRET_KEY = 'django-insecure-(cyy&tct7#oifok1y5s+x1l1i@m#*8v)h4$*=$_x#%@%=jy_jd'
+SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -32,8 +35,8 @@ APPEND_SLASH=False
 
 # Application definition
 
-CLIENT_ID = os.getenv('CLIENT_ID')
-CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+CLIENT_ID = str(os.getenv('CLIENT_ID'))
+CLIENT_SECRET = str(os.getenv('CLIENT_SECRET'))
 
 OAUTH2_PROVIDER = {
     # this is the list of available scopes

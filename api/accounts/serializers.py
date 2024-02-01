@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
+from django.conf import settings
 from accounts.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,7 +34,6 @@ class UserSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
-    
 
     def validate(self, data):
 
@@ -47,6 +47,33 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Password is required to login.')
 
         user = authenticate(username=username, password=password)
+
+        if user is None:
+            raise serializers.ValidationError('A user with this username and password was not found.')
+
+        return user
+
+
+class SignupSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+    client_id = serializers.CharField(write_only=True)
+    client_secret = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+
+        username = data.get('username', None)
+        password = data.get('password', None)
+        client_id = settings.CLIENT_ID
+        client_secret = settings.CLIENT_SECRET
+
+        if username is None:
+            raise serializers.ValidationError('Username is required to login.')
+
+        if password is None:
+            raise serializers.ValidationError('Password is required to login.')
+
+        user = authenticate(username=username, password=password, client_id=client_id, client_secret=client_secret)
 
         if user is None:
             raise serializers.ValidationError('A user with this username and password was not found.')

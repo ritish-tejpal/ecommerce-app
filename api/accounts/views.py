@@ -58,3 +58,17 @@ class LoginView(APIView):
         user = serializer.validated_data['user']
         token = user.auth_token
         return Response({'token': token.key}, status=status.HTTP_200_OK)
+
+
+class SingupView(APIView):
+    def post(self, request):
+        pass
+    
+
+class GenerateTokenView(APIView):
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token = user.auth_token
+        return Response({'token': token.key}, status=status.HTTP_200_OK)

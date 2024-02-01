@@ -1,24 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Login'
-import UserInformation from './User';
-import Login from './Login';
-import Product from './Products';
-
+import Navbar from './components/navbar';
+// import Signup from './Signup';
+import Home from './components/Home';
 
 
 function App() {
-  const [isLoggedIn, setLoggedIn] = useState(false);
-
-  function handleLogin(value) {
-    setLoggedIn(value);
-  }
-
   return (
-    <div className="App">
-      <Login onLogin={handleLogin} />
-      {isLoggedIn && <UserInformation />}
-      <Product />
-    </div>
+      <div className="App">
+        <h1>The Web Store</h1>
+        <Navbar />
+        <Home />
+      </div>
   );
 }
 
