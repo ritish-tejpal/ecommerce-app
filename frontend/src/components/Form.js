@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import handleLogin from "./auth/HandleLogin";
 import handleSignup from "./auth/HandleSignup";
+import TextField from "@mui/material/TextField";
+import Button from '@mui/material/Button';
+
 
 function Form(props){
 
@@ -22,23 +25,25 @@ function Form(props){
     return(
         <div>
             <form method="post" action={formType}>
-                <label >Enter your username
-                    <input
-                        name="username"
-                        type="username" 
-                        value={username}
-                        onChange={e => setUsername(e.target.value)}
-                    />
-                </label><br /><br />
-                <label>Enter your password
-                    <input 
-                        name="password"
-                        type="password" 
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                    />
-                </label><br /><br />
-                <button onClick={formType}>Submit</button>
+                <TextField
+                    id="outlined-basic"
+                    label="Enter your username"
+                    variant="outlined"
+                    name="username"
+                    type="username"
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
+                /><br /><br />
+                <TextField
+                    id="outlined-basic"
+                    label="Enter your password"
+                    variant="outlined"
+                    name="password"
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                /><br /><br />
+                <Button variant="contained" onClick={formType}>Submit</Button>
             </form>
         </div>
     )

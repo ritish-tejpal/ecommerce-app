@@ -1,74 +1,71 @@
-from rest_framework import mixins, generics, status
+from django.conf import settings
+from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from .models import User
-from .serializers import UserSerializer, LoginSerializer
-from oauth2_provider.views.generic import ProtectedResourceView
-from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
+from .serializers import UserSerializer
+from project.permissions import PrivateTokenAccessPermission, PublicTokenAccessPermission
 
 
-class UserListCreateView(mixins.ListModelMixin,
-                         mixins.CreateModelMixin,
-                         generics.GenericAPIView,
-                         ProtectedResourceView):
-    queryset = User.objects.all()
+class CreateUserView(generics.CreateAPIView):
+
     serializer_class = UserSerializer
-    permission_classes = [TokenHasReadWriteScope]
+    permission_classes = [PublicTokenAccessPermission,]
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+    def send_otp_mail(self, email):
+        import smtplib, random
+
+        otp = random.randint(1000, 9999)
+        user = User.objects.get(email=email)
+        user.otp = otp
+        user.save()
+        
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.ehlo()
+            server.starttls()
+            server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+            server.sendmail(
+                settings.EMAIL_HOST_USER, 
+                email, 
+                f'Your OTP is {otp}'
+            )
+            server.close()
+        
+        except Exception as e:
+            print(e)
+            return Response({'message': 'Error sending OTP'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message': 'OTP sent'}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        data = request.data
+        user_serializer = UserSerializer(data=data)
+        if not user_serializer.is_valid():
+            print("not goooooood")
+            print(user_serializer.errors)
+        else:
+            user = user_serializer.save()
+            self.send_otp_mail(user.email)
+
+            return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyOTPView(generics.GenericAPIView):
+
+    ''' Verify OTP View '''
+
+    serializer_class = UserSerializer
+    permission_classes = [PublicTokenAccessPermission,]
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-    
-    def perform_create(self, serializer):
-        user = serializer.save()
-        password = serializer.validated_data['password']
-        user.set_password(password)
-        user.save()
+        email = request.data.get('email')
+        otp = request.data.get('otp')
 
-
-
-class UserRetrieveUpdateDestroyView(mixins.RetrieveModelMixin,
-                                    mixins.UpdateModelMixin,
-                                    mixins.DestroyModelMixin,
-                                    generics.GenericAPIView,
-                                    ProtectedResourceView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [TokenHasReadWriteScope]
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-    
-    def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
-
-
-class LoginView(APIView):
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token = user.auth_token
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
-
-
-class SingupView(APIView):
-    def post(self, request):
-        pass
-    
-
-class GenerateTokenView(APIView):
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token = user.auth_token
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
+        user = User.objects.get(email=email)
+        if user.otp == otp:
+            user.is_app_user = True
+            user.save()
+            return Response({'message': 'OTP Verified'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
