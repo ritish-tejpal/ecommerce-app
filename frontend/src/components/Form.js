@@ -9,6 +9,8 @@ function Form(props){
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone_number, setPhoneNumber] = useState('');
 
 
     function formType(e){
@@ -17,7 +19,7 @@ function Form(props){
             handleLogin(username, password);
         }
         else if(props.type==="signup"){
-            handleSignup(username, password);
+            handleSignup(username, password, email, phone_number);
         }
     }
         
@@ -43,6 +45,28 @@ function Form(props){
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                 /><br /><br />
+                {props.type==="signup" ? 
+                    <>
+                    <TextField
+                        id="outlined-basic"
+                        label="Enter your email"
+                        variant="outlined"
+                        name="email"
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                    /><br /><br />
+                    <TextField
+                    id="outlined-basic"
+                    label="Enter your phone number"
+                    variant="outlined"
+                    name="phone_number"
+                    type="tel"
+                    value={phone_number}
+                    onChange={e => setPhoneNumber(e.target.value)}
+                /><br /><br />
+                   </> : null
+                }
                 <Button variant="contained" onClick={formType}>Submit</Button>
             </form>
         </div>
