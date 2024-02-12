@@ -33,7 +33,6 @@ class PublicTokenAccessPermission(permissions.BasePermission):
         """
         Return `True` if permission is granted, `False` otherwise.
         """
-        print(request.user.id)
         _ = self.class_error
         if request.user.is_anonymous:
             return False

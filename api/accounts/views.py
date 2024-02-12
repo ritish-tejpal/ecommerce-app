@@ -1,10 +1,22 @@
+import random
+
 from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.utils.html import strip_tags
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import EmailMultiAlternatives
+
 from rest_framework import generics, status
 from rest_framework.response import Response
-from .models import User
-from .serializers import UserSerializer
+
+import oauth2_provider.views
+
 from project.permissions import PrivateTokenAccessPermission, PublicTokenAccessPermission
 
+from .models import User
+from .serializers import UserSerializer
 
 class CreateUserView(generics.CreateAPIView):
 
@@ -19,8 +31,9 @@ class CreateUserView(generics.CreateAPIView):
             return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         else:
+            print(data)
             user_serializer.save()
-            return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+            return CreateOTPView().send_otp_mail(data.get('email'))
         
 
 class CreateOTPView(generics.GenericAPIView):
@@ -31,15 +44,11 @@ class CreateOTPView(generics.GenericAPIView):
     permission_classes = [PublicTokenAccessPermission,]
 
     def send_otp_mail(self, email):
-        import random
-        from django.conf import settings
-        from django.template.loader import render_to_string
-        from django.utils.html import strip_tags
-        from django.core.mail import EmailMultiAlternatives
 
         otp = random.randint(1000, 9999)
         user = User.objects.get(email=email)
         user.otp = otp
+        user.otp_expiry = timezone.now() + timezone.timedelta(minutes=5)
         user.save()
         
         subject = "OTP for Email Verification"
@@ -53,12 +62,11 @@ class CreateOTPView(generics.GenericAPIView):
             email.send()
 
         except Exception as e:
-            print(e)
             return Response({'message': 'Error sending OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'message': 'OTP sent'}, status=status.HTTP_200_OK)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         email = request.data.get('email')
         user = User.objects.filter(email=email)
         if user.exists():
@@ -73,15 +81,25 @@ class VerifyOTPView(generics.GenericAPIView):
     serializer_class = UserSerializer
     permission_classes = [PublicTokenAccessPermission,]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         email = request.data.get('email')
         otp = request.data.get('otp')
 
         user = User.objects.get(email=email)
+        
         if user.otp == otp:
-            user.is_app_user = True
-            user.save()
-            return Response({'message': 'OTP Verified'}, status=status.HTTP_200_OK)
+            if user.otp_expiry > timezone.now():
+                user.otp = None
+                user.otp_expiry = None
+                user.is_app_user = True
+                user.save()
+                return Response({'message': 'OTP Verified'}, status=status.HTTP_200_OK)
+            else:
+                user.otp = None
+                user.otp_expiry = None
+                user.save()
+                return Response({'message': 'OTP Expired'}, status=status.HTTP_400_BAD_REQUEST)
+            
         return Response({'message': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -91,7 +109,6 @@ class LoginUserView(generics.CreateAPIView):
     permission_classes = [PublicTokenAccessPermission]
 
     def post(self, request):
-        from django.shortcuts import redirect
 
         data = request.data
         email = data.get('email')
@@ -109,3 +126,25 @@ class LoginUserView(generics.CreateAPIView):
             return Response({'message':'User logged in'}, status=status.HTTP_200_OK)
         
         return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class GetPublicAccessTokenView(oauth2_provider.views.TokenView):
+    
+        ''' Get Public Access Token View '''
+    
+        permission_classes = [PublicTokenAccessPermission,]
+    
+        @method_decorator(csrf_exempt)
+        def dispatch(self, request, *args, **kwargs):
+            request.POST = request.POST.copy()
+            request.POST['username'] = settings.APPLICATION_USERNAME
+            request.POST['password'] = settings.APPLICATION_PASSWORD
+            request.POST['grant_type'] = 'password'
+            request.POST['client_id'] = settings.CLIENT_ID   
+            request.POST['client_secret'] = settings.CLIENT_SECRET
+            return super(GetPublicAccessTokenView, self).dispatch(request, *args, **kwargs)
+
+        def post(self, request, *args, **kwargs):
+            return super(GetPublicAccessTokenView, self).post(request, *args, **kwargs)
+
+        

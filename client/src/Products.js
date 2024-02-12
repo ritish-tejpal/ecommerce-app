@@ -1,11 +1,14 @@
-// Create a page for products that will show all products in the database
-
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
-import Navbar from './components/navbar';
 
 function Product(props) {
+  const getProducts = () => {
+    axios.post("http://127.0.0.1:8000/products/")
+    .then( 
+
+    )
+  }
+
   return (
     <div>
       <h1>{props.name}</h1>

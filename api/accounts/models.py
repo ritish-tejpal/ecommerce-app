@@ -11,6 +11,7 @@ class User(AbstractUser):
     password = models.CharField(max_length=128)
     is_app_user = models.BooleanField(default=False, null=True, blank=True)
     otp = models.CharField(max_length=6, null=True, blank=True)
+    otp_expiry = models.DateTimeField(null=True, blank=True)
 
     # USERNAME_FIELD = 'email'          # Use email as the username 
 
@@ -36,13 +37,3 @@ class User(AbstractUser):
 #     class Meta:
 #         abstract = True
 
-
-# class OAuthToken(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     access_token = models.OneToOneField(AccessToken, 
-#                                         on_delete=models.CASCADE,
-#                                         related_name='oauth_token')
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return f"OAuth Token for {self.user.username}"
