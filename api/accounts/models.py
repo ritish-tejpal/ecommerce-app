@@ -24,21 +24,44 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
 
-class OnlineUserToken(AbstractAccessToken):
-    last_activity = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=100, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    city = models.CharField(max_length=50, null=True, blank=True)
+    state = models.CharField(max_length=50, null=True, blank=True)
+    country = models.CharField(max_length=50, null=True, blank=True)
+    pincode = models.CharField(max_length=10, null=True, blank=True)
+    profile_pic = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, verbose_name='Added By',
+                                on_delete=models.SET_NULL, blank=True, null=True,
+                                related_name = 'added_%(class)ss_by')
+    
 
+    def __str__(self):
+        return self.user.username
+    
 
-# class Timestamped(models.Model):
-#     created_date = models.DateTimeField(auto_now_add=True)
-#     modified_date = models.DateTimeField(auto_now=True)
-#     created_by = models.ForeignKey(User, verbose_name='Added By',
-#                                 on_delete=models.SET_NULL, blank=True, null=True,
-#                                 related_name = 'added_%(class)ss_by')
-#     is_deleted = models.BooleanField(verbose_name='Is Deleted', default=False)
-#     modified_by = models.ForeignKey(User, verbose_name='Modified By',
-#                                     on_delete=models.SET_NULL, blank=True, null=True,
-#                                     related_name = 'updated_%(class)ss_by')
-#     class Meta:
-#         abstract = True
+# --------------------------------------------------------------------------------------------    
+# Custom Access Token Model; makemigrations error:-
+# AttributeError: 'Settings' object has no attribute 'OAUTH2_PROVIDER_APPLICATION_MODEL'
+# --------------------------------------------------------------------------------------------    
+# class OnlineUserToken(AbstractAccessToken):
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_token_user')
+    # id_token = models.CharField(max_length=255, null=True, blank=True)
+    # source_refresh_token = models.CharField(max_length=255, null=True, blank=True)
+    # last_activity = models.DateTimeField(auto_now=True)
+    # is_deleted = models.BooleanField(default=False)
+    # created_by = models.ForeignKey(User, verbose_name='Added By',
+                                # on_delete=models.SET_NULL, blank=True, null=True,
+                                # related_name = 'added_%(class)ss_by')
+    # modified_by = models.ForeignKey(User, verbose_name='Modified By',
+                                # on_delete=models.SET_NULL, blank=True, null=True,
+                                # related_name = 'modified_%(class)ss_by')
+    # created_date = models.DateTimeField(auto_now_add=True)
+    # modified_date = models.DateTimeField(auto_now=True)
 
+    # def __str__(self):
+        # return self.user.username
