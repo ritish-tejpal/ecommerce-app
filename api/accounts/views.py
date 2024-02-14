@@ -17,22 +17,23 @@ from project.permissions import PrivateTokenAccessPermission, PublicTokenAccessP
 
 from .models import User
 from .serializers import UserSerializer
+from rest_framework import serializers              # baad mein dekhna
 
 class CreateUserView(generics.CreateAPIView):
 
     serializer_class = UserSerializer
-    permission_classes = [PublicTokenAccessPermission,]
 
     def post(self, request):
         data = request.data
         user_serializer = UserSerializer(data=data)
-        if not user_serializer.is_valid():
-            print(user_serializer.errors)
+        if not user_serializer.exists():
+            print(234)
             return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         else:
-            print(data)
-            user_serializer.save()
+            if user_serializer.exists():
+                return Response({'message': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
+            user_serializer.save() 
             return CreateOTPView().send_otp_mail(data.get('email'))
         
 
@@ -41,7 +42,6 @@ class CreateOTPView(generics.GenericAPIView):
     ''' Create OTP View '''
 
     serializer_class = UserSerializer
-    permission_classes = [PublicTokenAccessPermission,]
 
     def send_otp_mail(self, email):
 
@@ -79,7 +79,6 @@ class VerifyOTPView(generics.GenericAPIView):
     ''' Verify OTP View '''
 
     serializer_class = UserSerializer
-    permission_classes = [PublicTokenAccessPermission,]
 
     def post(self, request):
         email = request.data.get('email')
@@ -103,10 +102,9 @@ class VerifyOTPView(generics.GenericAPIView):
         return Response({'message': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
     
 
-class LoginUserView(generics.CreateAPIView):
+class LoginView(generics.CreateAPIView):
 
     serializer_class = UserSerializer
-    permission_classes = [PublicTokenAccessPermission]
 
     def post(self, request):
 
@@ -120,13 +118,20 @@ class LoginUserView(generics.CreateAPIView):
             return Response({'message':'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
         if not user.is_app_user:
-            return Response({'message':'User not verified'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message':'User not verified'}, status=status.HTTP_401_UNAUTHORIZED)
         
         if user.check_password(password):
+            
             return Response({'message':'User logged in'}, status=status.HTTP_200_OK)
         
         return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
     
+
+class LogoutView(generics.GenericAPIView):
+
+    def post(self, request):
+        return Response({'message':'User logged out'}, status=status.HTTP_200_OK)
+
 
 class GetPublicAccessTokenView(oauth2_provider.views.TokenView):
     
@@ -148,3 +153,14 @@ class GetPublicAccessTokenView(oauth2_provider.views.TokenView):
             return super(GetPublicAccessTokenView, self).post(request, *args, **kwargs)
 
         
+class UserDetailView(generics.RetrieveAPIView):
+
+    serializer_class = UserSerializer
+
+    def get(self, request, id):
+        try:
+            user = User.objects.get(id=id)
+            user_serializer = UserSerializer(user)
+            return Response(user_serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)

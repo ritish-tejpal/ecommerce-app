@@ -6,6 +6,7 @@ import Home from './components/Home';
 import Signup from './Signup';
 import Product from './Products';
 import Login from './Login';
+import VerifyOTP from './components/VerifyOTP';
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
             <Route path='/signup' element={ <Signup /> } />
             <Route path='/login' element={ <Login /> } />
             <Route path='/products' element={ <Product /> } />
+            <Route path='/verify' element={<VerifyOTP /> } />
           </Routes>
         </CssBaseline>
       </div>

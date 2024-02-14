@@ -50,7 +50,6 @@ OAUTH2_PROVIDER = {
     
 }
 
-# OAUTH2_PROVIDER_ACCESS_TOKEN_MODEL = "accounts.OAuthToken"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -58,7 +57,7 @@ REST_FRAMEWORK = {
     ),
 
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ),
 }
 

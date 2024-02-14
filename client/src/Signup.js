@@ -6,8 +6,6 @@ import { TextField } from "@mui/material";
 
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { redirect } from "react-router-dom";
-
 
 
 const validationSchema = Yup.object().shape({
@@ -19,30 +17,33 @@ const validationSchema = Yup.object().shape({
 
 const Signup = () => {
     const handleSubmit = (values) => {
-        axios.post("http://127.0.0.1:8000/accounts/get-token/")
-        .then(async (res) => {
-            const access_token = res.data.access_token;
-            const response = await axios.post("http://127.0.0.1:8000/accounts/signup/", {
+        axios.post("http://127.0.0.1:8000/accounts/signup/", {
                 email: values.email,
                 password: values.password,
                 username: values.username,
                 phone_number: values.phone_number
-            }, {
-                headers: {
-                    Authorization: `Bearer ${access_token}`
+            })
+            .then(async (response) => {
+                if(response.status === 200){
+                    return(
+                        <>
+                            <h1>Signup successful</h1>
+                            <Button href="/verify">Login</Button>
+                        </>
+                    )
+                }
+                else if(response.status === 400){
+                    return(
+                        <>
+                            <h1>User already exists. Get a new verification OTP at this link</h1>
+                            <Button href="/verify">Get OTP</Button>
+                        </>
+                    )
                 }
             })
-            if(response.status === 200){
-                alert("OTP sent to your email")
-                redirect("/login")
-            }
-        })
-        
-        .catch((error) => {
-            alert("Error")
-        });
+        }
 
-    };
+
 
     return (
         <div>

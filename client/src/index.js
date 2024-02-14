@@ -4,16 +4,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from './state';
 
 import App from "./App";
 import "./index.css";
-
-
-const store = configureStore({
-    reducer: userReducer
-})
-
+import { store } from "./store";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

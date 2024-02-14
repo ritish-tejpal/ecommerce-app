@@ -24,6 +24,11 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
 
+class OnlineUserToken(AbstractAccessToken):
+    last_activity = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+
 # class Timestamped(models.Model):
 #     created_date = models.DateTimeField(auto_now_add=True)
 #     modified_date = models.DateTimeField(auto_now=True)
