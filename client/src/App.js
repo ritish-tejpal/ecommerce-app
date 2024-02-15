@@ -2,6 +2,8 @@ import React from 'react';
 import axios from 'axios';
 import { Routes, Route } from "react-router-dom";
 import { CssBaseline } from '@mui/material';
+
+import Layout from './components/Layout';
 import Home from './components/Home';
 import Signup from './Signup';
 import Product from './Products';
@@ -14,7 +16,8 @@ function App() {
       <div className="App">
         <CssBaseline>
           <Routes>
-            <Route path='/' element={ <Home /> } />
+            <Route path='/' element={ <Layout /> } />         {/* In testing; usage not clear */}
+            <Route index element={ <Home /> } />
             <Route path='/signup' element={ <Signup /> } />
             <Route path='/login' element={ <Login /> } />
             <Route path='/products' element={ <Product /> } />

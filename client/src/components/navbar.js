@@ -41,11 +41,11 @@ export const navbar = () => {
       </Toolbar>
     </AppBar>
 
-    <Routes>
+    {/* <Routes>
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
-    {/* <Route path="/products" element={<Products />} /> */}
-    </Routes>
+    <Route path="/products" element={<Products />} />
+    </Routes> */}
 </div>
   )
 }

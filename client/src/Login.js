@@ -17,17 +17,6 @@ const validationSchema = Yup.object().shape({
 });
 
 const Login = () => {
-    
-    const HandleLogin = () => {
-        const dispatch = useDispatch();
-        dispatch(setIsLoggedIn(true));
-    };
-
-    const Test = () => {
-        const isLoggedIn = useSelector((state) => state.isLoggedIn);
-        console.log(isLoggedIn);
-    }
-
     const handleSubmit = (values) => {
         axios.post("http://127.0.0.1:8000/accounts/login/", {
             email: values.email,
@@ -35,8 +24,7 @@ const Login = () => {
         })
         .then(async (response) => {
             console.log(response.data);
-            HandleLogin();
-            // Test();
+
             // localStorage.setItem("token", response.data.access)
         })
         .catch(async (error) => { 

@@ -142,8 +142,8 @@ class GetPublicAccessTokenView(oauth2_provider.views.TokenView):
         @method_decorator(csrf_exempt)
         def dispatch(self, request, *args, **kwargs):
             request.POST = request.POST.copy()
-            request.POST['username'] = settings.APPLICATION_USERNAME
-            request.POST['password'] = settings.APPLICATION_PASSWORD
+            # request.POST['username'] = settings.APPLICATION_USERNAME
+            # request.POST['password'] = settings.APPLICATION_PASSWORD
             request.POST['grant_type'] = 'password'
             request.POST['client_id'] = settings.CLIENT_ID   
             request.POST['client_secret'] = settings.CLIENT_SECRET
