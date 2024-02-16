@@ -8,4 +8,6 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('get-token/', GetPublicAccessTokenView.as_view(), name='test'),
     path('<int:id>/', UserDetailView.as_view(), name='user-detail'),
+    path('profile/', UserProfileView.as_view(), name='profile'),
+    path('profile/<int:id>/', UserDetailView.as_view(), name='user-detail'),
 ]

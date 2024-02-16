@@ -1,20 +1,19 @@
-import React from 'react'
-import { Routes, Route} from 'react-router-dom';
+import React, { useState } from 'react'
 import { AppBar, IconButton, Toolbar, Typography, Stack, Button } from "@mui/material";
 import LocalGroceryStoreIcon from '@mui/icons-material/LocalGroceryStore';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
-import Login from '../Login';
-import Signup from '../Signup';
+import {TextField} from '@mui/material';
 
-export const navbar = () => {
+const Navbar = () => {
+  const [search, setSearch] = useState(false)
   const searchBar = () => {
-    
+    setSearch(!search);
   }
 
   return (
-    <div>
+    <div className='nav'>
     <AppBar position="static">
       <Toolbar>
         <IconButton size='large' edge='start' color='inherit' aria-label='logo' href='/'>
@@ -36,18 +35,21 @@ export const navbar = () => {
           <IconButton size='large' edge='start' color='inherit' aria-label='logo' onClick={searchBar}>
             <SearchIcon />
           </IconButton>
-        
+          {search ? 
+            <TextField 
+              id='standard-ba'
+              color='info'
+              label='Search' 
+              variant='outlined' 
+              autoFocus={search}
+              onSubmit={searchBar}
+            /> : null}
         </Stack>
+        
       </Toolbar>
     </AppBar>
-
-    {/* <Routes>
-    <Route path="/login" element={<Login />} />
-    <Route path="/signup" element={<Signup />} />
-    <Route path="/products" element={<Products />} />
-    </Routes> */}
 </div>
   )
 }
 
-export default navbar
+export default Navbar;

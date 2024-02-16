@@ -23,7 +23,7 @@ const Signup = () => {
                 username: values.username,
                 phone_number: values.phone_number
             })
-            .then(async (response) => {
+            .then((response) => {
                 if(response.status === 200){
                     return(
                         <>
@@ -66,7 +66,6 @@ const Signup = () => {
                             type="email"
                             label="Email"
                             variant="outlined"
-                            fullWidth
                             helperText={<ErrorMessage name="email" />}
                         />{" "}
                         <br />
@@ -77,7 +76,6 @@ const Signup = () => {
                             type="password"
                             label="Password"
                             variant="outlined"
-                            fullWidth
                             helperText={<ErrorMessage name="password" />}
                         />{" "}
                         <br />
@@ -88,7 +86,6 @@ const Signup = () => {
                             type="username"
                             label="Username"
                             variant="outlined"
-                            fullWidth
                             helperText={<ErrorMessage name="username" />}
                         />{" "}
                         <br />
@@ -99,7 +96,6 @@ const Signup = () => {
                             type="tel"
                             label="Phone number"
                             variant="outlined"
-                            fullWidth
                             helperText={<ErrorMessage name="phone_number" />}
                         />{" "}
                         <br />
@@ -108,8 +104,7 @@ const Signup = () => {
                             type="submit"
                             variant="contained"
                             color="primary"
-                            // disabled={isSubmitting}
-                            fullWidth
+                            disabled={isSubmitting}
                         >
                             Submit
                         </Button>

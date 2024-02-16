@@ -14,18 +14,19 @@ import VerifyOTP from './components/VerifyOTP';
 function App() {
   return (
       <div className="App">
-        <CssBaseline>
+        <CssBaseline />
           <Routes>
-            <Route path='/' element={ <Layout /> } />         {/* In testing; usage not clear */}
-            <Route index element={ <Home /> } />
-            <Route path='/signup' element={ <Signup /> } />
-            <Route path='/login' element={ <Login /> } />
-            <Route path='/products' element={ <Product /> } />
-            <Route path='/verify' element={<VerifyOTP /> } />
+            <Route path='/' element={ <Layout /> }>
+              <Route index element={<Home />} />
+              <Route path='signup' element={ <Signup /> } />
+              <Route path='login' element={ <Login /> } />
+              <Route path='products' element={ <Product /> } />
+              <Route path='verify' element={<VerifyOTP /> } />
+            </Route>
           </Routes>
-        </CssBaseline>
       </div>
   );
 }
 
 export default App;
+

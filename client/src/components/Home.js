@@ -6,45 +6,83 @@ import { setToken } from "../store";
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
-import Header from "./Header";
-import Navbar from "./navbar";
-import Footer from "./Footer";
-
 
 function Home(props) {
-    // const token = useSelector((state) => state.user.token);
-    // const dispatch = useDispatch();
+    const images = 
+    [
+        {
+        "id": "0",
+        "author": "Alejandro Escamilla",
+        "width": 5000,
+        "height": 3333,
+        "url": "https://unsplash.com/photos/yC-Yzbqy7PY",
+        "download_url": "https://picsum.photos/id/0/5000/3333"
+        },
+        {
+        "id": "1",
+        "author": "Alejandro Escamilla",
+        "width": 5000,
+        "height": 3333,
+        "url": "https://unsplash.com/photos/LNRyGwIJr5c",
+        "download_url": "https://picsum.photos/id/1/5000/3333"
+        },
+        {
+        "id": "2",
+        "author": "Alejandro Escamilla",
+        "width": 5000,
+        "height": 3333,
+        "url": "https://unsplash.com/photos/N7XodRrbzS0",
+        "download_url": "https://picsum.photos/id/2/5000/3333"
+        },
+        {
+        "id": "3",
+        "author": "Alejandro Escamilla",
+        "width": 5000,
+        "height": 3333,
+        "url": "https://unsplash.com/photos/Dl6jeyfihLk",
+        "download_url": "https://picsum.photos/id/3/5000/3333"
+        },
+        {
+        "id": "4",
+        "author": "Alejandro Escamilla",
+        "width": 5000,
+        "height": 3333,
+        "url": "https://unsplash.com/photos/y83Je1OC6Wc",
+        "download_url": "https://picsum.photos/id/4/5000/3333"
+        },
+        {
+        "id": "5",
+        "author": "Alejandro Escamilla",
+        "width": 5000,
+        "height": 3334,
+        "url": "https://unsplash.com/photos/LF8gK8-HGSg",
+        "download_url": "https://picsum.photos/id/5/5000/3334"
+        },
+    ]
 
-    // window.addEventListener('load', () => {
-    //     axios.post("http://127.0.0.1:8000/accounts/get-token/")
-    //     .then(async (res) => {
-    //       console.log(res.data);
-    //     })
-    //   })
     const CarouselPage = () => {
         return(
             <Carousel
                 showArrows={true}
                 autoPlay={true}
                 infiniteLoop={true}
+                showThumbs={false}
             >
-                <div>
-                    <img src="https://via.placeholder.com/640x360" alt="totk lol" />
-                </div>
-                <div>
-                    <img src="https://via.placeholder.com/640x360" alt="" />
-                </div>
+                {images.map((image) => {
+                    return(
+                        <div>
+                            <img src={image.download_url} alt={image.author} />
+                        </div>
+                    )
+                })}
             </Carousel>
         )
     }
 
 
     return (
-        <div className="home">
-            <Navbar />
-            <Header />
-            <CarouselPage />
-            <Footer />
+        <div className="home" style={{width: "40%"}}>
+            <CarouselPage  />
         </div>
     );
 }
