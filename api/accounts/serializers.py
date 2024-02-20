@@ -27,8 +27,3 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = '__all__'
 
-
-class UserDetailSerializer(serializers.Serializer):
-    class Meta:
-        model = [User, UserProfile, PurchaseHistory]
-        fields = '__all__'

@@ -1,4 +1,5 @@
 import random
+import json
 
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -7,11 +8,13 @@ from django.utils.html import strip_tags
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMultiAlternatives
-
+from django.http import HttpRequest, JsonResponse
 from rest_framework import generics, status
 from rest_framework.response import Response
 
 import oauth2_provider.views
+
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from project.permissions import PrivateTokenAccessPermission, PublicTokenAccessPermission
 
@@ -19,10 +22,12 @@ from .models import *
 from .serializers import *
 from rest_framework import serializers
 
-# ---------------------------------------------------------------------------------------------------------
-# View to handle creation of user
-# ---------------------------------------------------------------------------------------------------------
+
 class CreateUserView(generics.CreateAPIView):
+
+    '''
+    - View to handle user creation \n
+    '''
 
     serializer_class = UserSerializer
 
@@ -39,12 +44,14 @@ class CreateUserView(generics.CreateAPIView):
             return CreateOTPView().send_otp_mail(data.get('email'))
         
 
-# ---------------------------------------------------------------------------------------------------------
-# View to handle sending OTP to specified user email
-# Supports POST method to send OTP to existing user emails
-# Improve functionality: verification via button click in email?
-# ---------------------------------------------------------------------------------------------------------
+
 class CreateOTPView(generics.GenericAPIView):
+
+    '''
+    - View to handle sending OTP to user email \n
+    - Supports POST method to send OTP to existing user emails \n
+    - Improve functionality: verification via button click in email? \n
+    '''
 
     serializer_class = UserSerializer
 
@@ -80,12 +87,11 @@ class CreateOTPView(generics.GenericAPIView):
         return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# ---------------------------------------------------------------------------------------------------------
-# View to handle verification of OTP
-# ---------------------------------------------------------------------------------------------------------
 class VerifyOTPView(generics.GenericAPIView):
 
-    ''' Verify OTP View '''
+    '''
+    - View to handle verification of OTP \n
+    '''
 
     serializer_class = UserSerializer
 
@@ -111,21 +117,23 @@ class VerifyOTPView(generics.GenericAPIView):
         return Response({'message': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
     
 
-# ---------------------------------------------------------------------------------------------------------
-# View to handle user login 
-# Login can only be done after user has been verified
-# ---------------------------------------------------------------------------------------------------------
+
 class LoginView(generics.CreateAPIView):
+
+    '''
+    - View to handle user login \n
+    - Login can only be done after user has been verified 
+    '''
 
     serializer_class = UserSerializer
 
-    def post(self, request):
-
+    def post(self, request, *args, **kwargs):
+        
         data = request.data
-        email = data.get('email')
+        username = data.get('username')
         password = data.get('password')
 
-        user = User.objects.get(email=email)
+        user = User.objects.get(username=username)
         
         if not user:
             return Response({'message':'User not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -134,30 +142,45 @@ class LoginView(generics.CreateAPIView):
             return Response({'message':'User not verified'}, status=status.HTTP_401_UNAUTHORIZED)
         
         if user.check_password(password):
-            
-            return Response({'message':'User logged in'}, status=status.HTTP_200_OK)
+            try:
+                token_request = HttpRequest()
+                token_request.method = 'POST'
+                token_request.POST = request.data
+
+                token_response = GetPublicAccessTokenView().dispatch(token_request, *args, **kwargs)
+
+                token_data = json.loads(token_response.content)
+
+                
+                return Response({'message':'User logged in', 'data': token_data}, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                print(f'Error: {e}')
+                return Response({'message':'Error logging in'}, status=status.HTTP_400_BAD_REQUEST)
+
         
         return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
     
 
-# ---------------------------------------------------------------------------------------------------------
-# View to handle user logout
-# Functionality to be implemented
-# ---------------------------------------------------------------------------------------------------------
 class LogoutView(generics.GenericAPIView):
+    
+    '''
+    - View to handle user logout \n
+    - Functionality to be implemented
+    '''
 
     def post(self, request):
         return Response({'message':'User logged out'}, status=status.HTTP_200_OK)
 
 
-# ---------------------------------------------------------------------------------------------------------
-# View to create and send a public access token using client credentials
-# Requires 'username' and 'password'
-# Evaluate need for PublicTokenAccessPermission?
-# ---------------------------------------------------------------------------------------------------------
+
 class GetPublicAccessTokenView(oauth2_provider.views.TokenView):
     
-        ''' Get Public Access Token View '''
+        '''
+        - View to get public access token using client credentials \n
+        - Requires 'username' and 'password' \n
+        - Evaluate need for PublicTokenAccessPermission?
+        '''
     
         permission_classes = [PublicTokenAccessPermission,]
     
@@ -173,40 +196,47 @@ class GetPublicAccessTokenView(oauth2_provider.views.TokenView):
             return super(GetPublicAccessTokenView, self).post(request, *args, **kwargs)
 
 
-# ---------------------------------------------------------------------------------------------------------
-# View to get all user details: User, UserProfile, PurchaseHistory
-# Currently requires user id; to be updated to use username (required?)
-# ---------------------------------------------------------------------------------------------------------
+
 class UserDetailView(generics.RetrieveAPIView):
 
-    ''' View to return all user details '''
+    '''
+    - View to get all user details: User, UserProfile, PurchaseHistory \n
+    - Currently requires user id; to be updated to use username (required?)
+    '''
 
     serializer_class = UserSerializer
+    queryset = User.objects.all()
 
-    def get(self, request, id):
+    def get(self, request, username):
         try:
-            user = User.objects.get(id=id)
-            user_profile = UserProfile.objects.get(user=user)
+            user = User.objects.get(username=username)
+            user_serializer = UserSerializer(user)
 
-            # purchase_history = PurchaseHistory.objects.filter(user=user_profile)
-            serializer = UserDetailSerializer({'user': user, 'user_profile': user_profile}, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
+            try:
+            
+                user_profile = UserProfile.objects.get(user=user)
+                user_profile_serializer = UserProfileSerializer(user_profile)
+                return Response({'user': user_serializer.data, 'user_profile': user_profile_serializer.data}, status=status.HTTP_200_OK)
+            
+            except UserProfile.DoesNotExist:
+                return Response({'message': 'You have not created your profile yet.', 'data': user_serializer.data}, status=status.HTTP_200_OK)
         
         except User.DoesNotExist:
             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 
-# ---------------------------------------------------------------------------------------------------------
-# View to create user profile after user has been verified
-# Supports:
-#   POST method to create a user profile for first time users
-#   PATCH method to update user profile details except for "email" and "phone_number" fields
-# User profile will only be deleted if the user is deleted
-# ---------------------------------------------------------------------------------------------------------
+
 class UserProfileView(generics.CreateAPIView,
                       generics.RetrieveUpdateAPIView):
+    
+    '''
+    - View to create user profile after user has been verified \n
+    - Supports:
+        - POST method to create a user profile for first time users
+        - PATCH method to update user profile details except for "email" and "phone_number" fields \n
+    - User profile will only be deleted if the user is deleted \n
+    '''
 
     serializer_class = UserProfileSerializer
     permission_classes = []

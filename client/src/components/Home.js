@@ -81,7 +81,7 @@ function Home(props) {
 
 
     return (
-        <div className="home" style={{width: "40%"}}>
+        <div className="main carousel">
             <CarouselPage  />
         </div>
     );

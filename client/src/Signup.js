@@ -46,7 +46,7 @@ const Signup = () => {
 
 
     return (
-        <div>
+        <div className="main">
             <h1>Signup</h1>
             <Formik
                 initialValues={{
@@ -105,6 +105,7 @@ const Signup = () => {
                             variant="contained"
                             color="primary"
                             disabled={isSubmitting}
+                            sx={{ width: "50%", position: 'relative', left: '25%'}}
                         >
                             Submit
                         </Button>

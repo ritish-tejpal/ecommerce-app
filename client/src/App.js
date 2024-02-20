@@ -9,6 +9,7 @@ import Signup from './Signup';
 import Product from './Products';
 import Login from './Login';
 import VerifyOTP from './components/VerifyOTP';
+import Accounts from './components/Accounts';
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
               <Route path='login' element={ <Login /> } />
               <Route path='products' element={ <Product /> } />
               <Route path='verify' element={<VerifyOTP /> } />
+              <Route path='accounts' element={<Accounts />} />
             </Route>
           </Routes>
       </div>

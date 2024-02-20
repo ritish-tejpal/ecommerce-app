@@ -12,14 +12,14 @@ import { useSelector, useDispatch } from "react-redux";
 
 
 const validationSchema = Yup.object().shape({
-    email: Yup.string().email("Invalid email").required("Email is required"),
+    username: Yup.string().required("Username is required"),
     password: Yup.string().required("Password is required"),
 });
 
 const Login = () => {
     const handleSubmit = (values) => {
         axios.post("http://127.0.0.1:8000/accounts/login/", {
-            email: values.email,
+            username: values.username,
             password: values.password,
         })
         .then(async (response) => {
@@ -34,14 +34,12 @@ const Login = () => {
     };
 
     return (
-        <div>
+        <div className="main">
             <h1>Login</h1>
             <Formik
                 initialValues={{
-                    email: "",
-                    password: "",
                     username: "",
-                    phone_number: "",
+                    password: "",
                 }}
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
@@ -50,11 +48,11 @@ const Login = () => {
                     <Form>
                         <Field
                             as={TextField}
-                            name="email"
-                            type="email"
-                            label="Email"
+                            name="username"
+                            type="text"
+                            label="Username"
                             variant="outlined"
-                            helperText={<ErrorMessage name="email" />}
+                            helperText={<ErrorMessage name="username" />}
                         />{" "}
                         <br />
                         <br />
@@ -72,6 +70,7 @@ const Login = () => {
                             type="submit"
                             variant="contained"
                             color="primary"
+                            sx={{ width: "50%", position: 'relative', left: '25%'}}
                             // disabled={isSubmitting}
                         >
                             Submit
