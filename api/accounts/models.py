@@ -51,7 +51,7 @@ class UserProfile(models.Model):
 
 class PurchaseHistory(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    product_id = models.ForeignKey('products.Product', on_delete=models.CASCADE)
+    product = models.ForeignKey('products.Product', on_delete=models.CASCADE)
     quantity = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

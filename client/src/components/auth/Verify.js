@@ -5,22 +5,33 @@ import Button from "@mui/material/Button";
 import { TextField } from "@mui/material";
 import { Form, Field } from "formik";
 
-const VerifyOTP = () => {
+import { useLocation } from "react-router-dom";
+
+const Verify = () => {
+    const location = useLocation();
+    const email = location.state.email;
+
     const handleVerify = (values) => {
+        console.log(location.state.email, values.otp)
         axios.post("http://127.0.0.1:8000/accounts/verify/", {
+            email: this.state.email,
             otp: values.otp
         })
-        
+        .then((response) => {
+            console.log(response);
+        })
+        .catch((error) => {
+            console.log(error);
+        })        
     } 
 
     return (
-    <div>
-        <Form>
-            <Field 
-                as={TextField}
+    <div className="main">
+        <Form className="main" onSubmit={e => e.preventDefault()}>
+            <TextField
                 variant='outlined'
                 name='otp'
-                type='number'
+                type='text'
                 label='Enter your OTP'
                 placeholder='Enter your OTP'
             /> <br /><br />
@@ -28,6 +39,7 @@ const VerifyOTP = () => {
                 type="submit"
                 variant="contained"
                 color="primary"
+                onClick={handleVerify}
             > Verify 
             </Button>
         </Form>
@@ -35,4 +47,4 @@ const VerifyOTP = () => {
     );
 };
 
-export default VerifyOTP;
+export default Verify;

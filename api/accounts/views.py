@@ -13,6 +13,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 
 import oauth2_provider.views
+from oauth2_provider.models import AccessToken, RefreshToken
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -29,19 +30,28 @@ class CreateUserView(generics.CreateAPIView):
     - View to handle user creation \n
     '''
 
+    queryset = User.objects.all()
     serializer_class = UserSerializer
 
     def post(self, request):
         data = request.data
         user_serializer = UserSerializer(data=data)
-        if not user_serializer.exists():
-            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        else:
-            if user_serializer.exists():
-                return Response({'message': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
-            user_serializer.save() 
+        # if not user_serializer.exists():
+        #     return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # else:
+        try:
+            user_serializer.is_valid(raise_exception=True)
+            user_serializer.save()
             return CreateOTPView().send_otp_mail(data.get('email'))
+        except serializers.ValidationError as e:
+            return Response({'message': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        # if User.objects.filter(email=data.get('email')).exists():
+        #     return Response({'message': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        # user_serializer.is_valid(raise_exception=True)
+        # user_serializer.save() 
+        # return CreateOTPView().send_otp_mail(data.get('email'))
         
 
 
@@ -148,9 +158,7 @@ class LoginView(generics.CreateAPIView):
                 token_request.POST = request.data
 
                 token_response = GetPublicAccessTokenView().dispatch(token_request, *args, **kwargs)
-
                 token_data = json.loads(token_response.content)
-
                 
                 return Response({'message':'User logged in', 'data': token_data}, status=status.HTTP_200_OK)
 
@@ -165,11 +173,19 @@ class LoginView(generics.CreateAPIView):
 class LogoutView(generics.GenericAPIView):
     
     '''
-    - View to handle user logout \n
-    - Functionality to be implemented
+    - View to handle user logout
+    - Request will contain access token in 'Authorization' header
+    - Fetch access token from table and delete it
     '''
 
     def post(self, request):
+        token = request.headers['Authorization']
+        access_token = AccessToken.objects.get(token=token.split(' ')[1])
+        refresh_token = RefreshToken.objects.get(access_token=access_token)
+        access_token.delete()
+        refresh_token.delete()
+
+
         return Response({'message':'User logged out'}, status=status.HTTP_200_OK)
 
 
@@ -188,7 +204,7 @@ class GetPublicAccessTokenView(oauth2_provider.views.TokenView):
         def dispatch(self, request, *args, **kwargs):
             request.POST = request.POST.copy()
             request.POST['grant_type'] = 'password'
-            request.POST['client_id'] = settings.CLIENT_ID   
+            request.POST['client_id'] = settings.CLIENT_ID
             request.POST['client_secret'] = settings.CLIENT_SECRET
             return super(GetPublicAccessTokenView, self).dispatch(request, *args, **kwargs)
 
@@ -197,18 +213,24 @@ class GetPublicAccessTokenView(oauth2_provider.views.TokenView):
 
 
 
-class UserDetailView(generics.RetrieveAPIView):
+class UserDetailView(generics.CreateAPIView,
+                    generics.RetrieveUpdateAPIView):
 
     '''
-    - View to get all user details: User, UserProfile, PurchaseHistory \n
-    - Currently requires user id; to be updated to use username (required?)
+    - View to get all user details: User, UserProfile, PurchaseHistory (to be implemented)
+    - Supports GET, POST, PATCH methods
+    - Requires 'Authorization' header with access token
     '''
 
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    permission_classes = [PublicTokenAccessPermission]
 
-    def get(self, request, username):
+    def get(self, request):
         try:
+            token = request.headers['Authorization']
+            access_token = AccessToken.objects.get(token=token.split(' ')[1])
+            username = access_token.user.username
             user = User.objects.get(username=username)
             user_serializer = UserSerializer(user)
 
@@ -219,45 +241,41 @@ class UserDetailView(generics.RetrieveAPIView):
                 return Response({'user': user_serializer.data, 'user_profile': user_profile_serializer.data}, status=status.HTTP_200_OK)
             
             except UserProfile.DoesNotExist:
-                return Response({'message': 'You have not created your profile yet.', 'data': user_serializer.data}, status=status.HTTP_200_OK)
+                return Response({'message': 'You have not completed your profile yet.', 'data': user_serializer.data}, status=status.HTTP_200_OK)
         
         except User.DoesNotExist:
             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-
-
-
-class UserProfileView(generics.CreateAPIView,
-                      generics.RetrieveUpdateAPIView):
-    
-    '''
-    - View to create user profile after user has been verified \n
-    - Supports:
-        - POST method to create a user profile for first time users
-        - PATCH method to update user profile details except for "email" and "phone_number" fields \n
-    - User profile will only be deleted if the user is deleted \n
-    '''
-
-    serializer_class = UserProfileSerializer
-    permission_classes = []
-
     def post(self, request):
-        data = request.data
-        user = User.objects.get(email=data.get('email'))
-        user_profile = UserProfile.objects.filter(user=user)
-        if user_profile.exists():
-            return Response({'message': 'User profile already exists'}, status=status.HTTP_400_BAD_REQUEST)
-        serializer = UserProfileSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
+        token = request.headers['Authorization']
+        access_token = AccessToken.objects.get(token=token.split(' ')[1])
+        username = access_token.user.username
+        user = User.objects.get(username=username)
+        try:
+            UserProfile.objects.get(user=user)
+            return Response({'message': 'User profile already exists'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        except UserProfile.DoesNotExist:
+            data = request.data.copy()
+            data['user'] = user.id
+            serializer = UserProfileSerializer(data=data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
             return Response({'message': 'User profile created'}, status=status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
     def patch(self, request):
+        token = request.headers['Authorization']
+        access_token = AccessToken.objects.get(token=token.split(' ')[1])
+        username = access_token.user.username
+        
+        user = User.objects.get(username=username)
         data = request.data
-        user = User.objects.get(id=data.get('user'))
-        user_profile = UserProfile.objects.get(user=user)
+
+        try:
+            user_profile = UserProfile.objects.get(user=user)
+        except UserProfile.DoesNotExist:
+            return Response({'message': 'User profile does not exist'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
         serializer = UserProfileSerializer(user_profile, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()

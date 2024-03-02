@@ -18,7 +18,7 @@ class PrivateTokenAccessPermission(permissions.BasePermission):
         if request.user.is_anonymous:
             return False
 
-        if request.user.is_app_user:
+        if not request.user.is_app_user:
             return False
         return True
     

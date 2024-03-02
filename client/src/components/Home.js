@@ -1,7 +1,4 @@
 import React from "react";
-import axios from "axios";
-import { useSelector, useDispatch } from 'react-redux'
-import { setToken } from "../store";
 
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
@@ -62,27 +59,35 @@ function Home(props) {
 
     const CarouselPage = () => {
         return(
-            <Carousel
-                showArrows={true}
-                autoPlay={true}
-                infiniteLoop={true}
-                showThumbs={false}
-            >
-                {images.map((image) => {
-                    return(
-                        <div>
-                            <img src={image.download_url} alt={image.author} />
-                        </div>
-                    )
-                })}
-            </Carousel>
+            <div>
+                <Carousel
+                    showArrows={true}
+                    autoPlay={true}
+                    infiniteLoop={true}
+                    showThumbs={false}
+                    sx={{alignContent: "center"}}
+                >
+                    {images.map((image) => {
+                        return(
+                            <div>
+                                <img src={image.download_url} alt={image.author} />
+                            </div>
+                        )
+                    })}
+                </Carousel>
+            </div>
         )
     }
 
 
     return (
-        <div className="main carousel">
-            <CarouselPage  />
+        <div>
+            <div className="py-5">
+                <h1 className="text-4xl text-left md:text-center">Home</h1>
+            </div>
+            <div className="container mx-auto p-7 size-3/4">
+                <CarouselPage  />
+            </div>
         </div>
     );
 }

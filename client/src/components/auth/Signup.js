@@ -7,6 +7,7 @@ import { TextField } from "@mui/material";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
+import { useNavigate } from "react-router-dom";
 
 const validationSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Email is required"),
@@ -16,6 +17,8 @@ const validationSchema = Yup.object().shape({
 });
 
 const Signup = () => {
+    const navigate = useNavigate();
+
     const handleSubmit = (values) => {
         axios.post("http://127.0.0.1:8000/accounts/signup/", {
                 email: values.email,
@@ -25,22 +28,15 @@ const Signup = () => {
             })
             .then((response) => {
                 if(response.status === 200){
-                    return(
-                        <>
-                            <h1>Signup successful</h1>
-                            <Button href="/verify">Login</Button>
-                        </>
-                    )
+                    navigate("/verify", { state: { email: values.email } });
                 }
                 else if(response.status === 400){
-                    return(
-                        <>
-                            <h1>User already exists. Get a new verification OTP at this link</h1>
-                            <Button href="/verify">Get OTP</Button>
-                        </>
-                    )
+                    console.log("User already exists. Get a new verification OTP at this link");
                 }
             })
+            .catch((error) => {
+                console.log(error);
+            });
         }
 
 
@@ -104,7 +100,7 @@ const Signup = () => {
                             type="submit"
                             variant="contained"
                             color="primary"
-                            disabled={isSubmitting}
+                            // disabled={isSubmitting}
                             sx={{ width: "50%", position: 'relative', left: '25%'}}
                         >
                             Submit

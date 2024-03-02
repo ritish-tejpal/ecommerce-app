@@ -7,8 +7,8 @@ import { TextField } from "@mui/material";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-import { setIsLoggedIn } from "./store";
-import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
 
 
 const validationSchema = Yup.object().shape({
@@ -17,17 +17,25 @@ const validationSchema = Yup.object().shape({
 });
 
 const Login = () => {
+    const navigate = useNavigate();
+
     const handleSubmit = (values) => {
         axios.post("http://127.0.0.1:8000/accounts/login/", {
             username: values.username,
             password: values.password,
         })
-        .then(async (response) => {
-            console.log(response.data);
+        .then((response) => {
+            console.log(response.data.data);
+            localStorage.setItem("token", response.data.data.access_token)
+            localStorage.setItem("refresh", response.data.data.refresh_token)
 
-            // localStorage.setItem("token", response.data.access)
+            console.log(localStorage.getItem("token"));
+            console.log(localStorage.getItem("refresh"));
+            navigate("/accounts");
+            
+
         })
-        .catch(async (error) => { 
+        .catch((error) => { 
             console.log(error);
             return error.response;
         });

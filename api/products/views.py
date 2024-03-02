@@ -1,9 +1,9 @@
-from rest_framework import generics, mixins
+from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 
-from .models import Product
+from .models import *
 from .serializers import *
 
 
@@ -23,7 +23,17 @@ class ProductList(generics.ListCreateAPIView):
 class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [AllowAny]                    # AllowAny is used for testing purposes only
+    permission_classes = [AllowAny]
+
+    def get(self, request, name):
+        try:
+            product = Product.objects.get(name=name)
+            serializer = ProductSerializer(product)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Product.DoesNotExist:
+            return Response({'message': 'product does not exist', 'product': name}, status=status.HTTP_404_NOT_FOUND)
+
 
     def perform_update(self, serializer):
         try:
@@ -36,7 +46,16 @@ class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
 class ReviewList(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [AllowAny]                    # AllowAny is used for testing purposes only
+    permission_classes = [AllowAny]
+
+    def get(self, request, name):
+        try:
+            product = Product.objects.get(name=name)
+            reviews = Review.objects.filter(product_id=product)
+            serializer = ReviewSerializer(reviews, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
         
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):

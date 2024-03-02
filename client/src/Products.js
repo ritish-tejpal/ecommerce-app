@@ -1,40 +1,24 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Navigate } from "react-router-dom";
+import React, { useState } from "react";
 import { Button } from "@mui/material";
 
-import Display from "./components/Display";
+import ProductDisplay from "./components/products/ProductDisplay";
+import ProductForm from "./components/products/ProductForm";
 
-function Product(props) {
-    const [products, setProducts] = useState([]);
-
-    useEffect(() => {
-        axios.get("http://127.0.0.1:8000/products/").then((response) => {
-        setProducts(response.data);
-    });
-    }, []);
+function Products(props) {
+    const [form, setForm] = useState(false);
 
     const handleForm = () => {
-        alert("Form will be displayed here");
+        setForm(!form);
     }
 
     return (
-        <div style={{border: '50px', display: 'flex'}}>
-            <Button onClick={handleForm}>Add your own products</Button>
+        <div className="main">
             <h1>Products</h1>
-            {products.map((product) => (
-                <div style={{width: '50%', padding: '5px'}}>
-                    <Display
-                        name={product.name}
-                        description={product.description}
-                        price={product.price}
-                        quantity={product.quantity}
-                        category={product.category}
-                    />
-                </div>
-            ))}
+            <Button onClick={handleForm}>Add Product</Button>
+            {form && <ProductForm />}
+            {!form && <ProductDisplay />}
         </div>
     );
 }
 
-export default Product;
+export default Products;

@@ -8,12 +8,13 @@ import Typography from '@mui/material/Typography';
 
 const Display = (props) => {
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    <Card sx={{ }}>
       <CardMedia
         component="img"
         height="140"
         image="https://picsum.photos/seed/picsum/200/300"
         alt="green iguana"
+        sx={{ width: "100%"}}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
@@ -24,7 +25,7 @@ const Display = (props) => {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small">Buy</Button>
+        <Button size="small" href={'/products/'+props.name}>Buy</Button>
       </CardActions>
     </Card>
   )
