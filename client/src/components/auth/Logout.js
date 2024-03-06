@@ -6,15 +6,10 @@ const Logout = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token === null) {
-            navigate("/login");
-        }
         axios.post("http://127.0.0.1:8000/accounts/logout/", {}, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-        
         })
         .then((response) => {
             console.log(response);
@@ -25,11 +20,11 @@ const Logout = () => {
         .catch((error) => {
             console.log(error);
         });
-    }, [navigate]) // Include 'navigate' in the dependency array
+    }, [navigate]) 
 
     return (
-        <div>
-
+        <div className=" container flex justify-center mx-auto shadow-md">
+            <h1 className="font-bold">Logging out...</h1>
         </div>
     );
 };

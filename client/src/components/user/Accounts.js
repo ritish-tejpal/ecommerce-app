@@ -10,7 +10,6 @@ const Accounts = () => {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        console.log(token);
         if (token === null) {
             navigate("/login");
         }
@@ -20,25 +19,21 @@ const Accounts = () => {
                 },
             })
             .then((response) => {
-                console.log(response);
                 setUser(response.data.user);
-                setUserProfile(response.data.user_profile);
-                console.log(user);
-                
+                setUserProfile(response.data.user_profile);                
             })
             .catch((error) => {
                 console.log(error);
             });
-    }, []);
+    }, [navigate]);
 
     return (
         <div className="main">
             <h1>Accounts</h1>
-            
             <div className="container">
                 <div className="row">
-                    <div className="col-md-6">
-                        <h3>User Information</h3>
+                    <div className=" col-md-6">
+                        <h3 className=" font-bold">User Information</h3>
                         {
                             Object.entries(user).map(([key, value]) => {
                                 return <p key={key}>{key}: {value}</p>

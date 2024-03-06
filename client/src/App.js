@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { Routes, Route } from "react-router-dom";
 
 import Layout from './components/Layout';
@@ -13,6 +13,14 @@ import Logout from './components/auth/Logout';
 import Cart from './components/user/Cart';
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      setLoggedIn(true);
+    }
+  }, []);
+
   return (
       <div className="App">
           <Routes>

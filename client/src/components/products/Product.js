@@ -8,27 +8,26 @@ const Product = (props) => {
     const [product, setProduct] = useState({})
     const [reviews, setReviews] = useState([{}])
     
+    const fetchData = async (name) => {
+        axios.get(`http://127.0.0.1:8000/products/${name}/`)
+        .then((response) => {
+            setProduct(response.data)
+        })
+        .catch((error) => console.log(error))
+    }
+
+    const fetchReviews = async (name) => {
+        axios.get(`http://127.0.0.1:8000/products/reviews/${name}/`)
+        .then((response) => {
+            setReviews(response.data)
+        })
+        .catch((error) => console.log(error))
+    }
+
     useEffect(() => {
-        const fetchData = async (name) => {
-            axios.get(`http://127.0.0.1:8000/products/${name}/`)
-            .then((response) => {
-                setProduct(response.data)
-            })
-            .catch((error) => console.log(error))
-        }
-
-        const fetchReviews = async (name) => {
-            axios.get(`http://127.0.0.1:8000/products/reviews/${name}/`)
-            .then((response) => {
-                setReviews(response.data)
-            })
-            .catch((error) => console.log(error))
-        }
-
         fetchData(name)
         fetchReviews(name)
-
-    }, [])
+    }, [name])
 
   return (
     <div className='container mx-auto px-4'>
