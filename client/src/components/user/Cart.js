@@ -69,8 +69,8 @@ const Cart = () => {
         <ul className="divide-y divide-gray-200 max-w-4xl mx-auto">
         <li className="py-4 flex font-bold">
           <div className="flex-1">Item</div>
-          <div className="flex-1">Quantity</div>
-          <div>Subtotal</div>
+          <div className="flex-1">Subtotal</div>
+          <div>Quantity</div>
         </li>
           {products.map((product) => {
             // setTotal(total + product.subtotal);      // wkfnvogbrwjefvnl
