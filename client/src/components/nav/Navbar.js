@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import SearchBar from './SearchBar'
 
-import cart from '../assets/cart.png'
-import searchbar from '../assets/search.png'
+import cart from '../../assets/cart.png'
 
 const Navbar = () => {
   const [search, setSearch] = useState(false)
@@ -32,17 +31,17 @@ const Navbar = () => {
           </a>
           <ul className=' flex space-x-4 text-green-200 text-lg px-4 '>
             <li className='hover:text-green-700'>
-              <a href="/login">
+              <a href="/auth/login">
                 Login
               </a>
             </li>
             <li className='hover:text-green-700'>
-              <a href="/logout">
+              <a href="/auth/logout">
                 Logout
               </a>
             </li>
             <li className='hover:text-green-700'>
-              <a href="/signup">
+              <a href="/auth/signup">
                 Signup
               </a>
             </li>
@@ -67,12 +66,12 @@ const Navbar = () => {
                 >
                   <ul className=' py-2 text-sm whitespace-nowrap'>
                     <li>
-                      <a href="/accounts" className=' block px-4 py-2 text-gray-800 hover:bg-gray-200'>
+                      <a href="/user/accounts" className=' block px-4 py-2 text-gray-800 hover:bg-gray-200'>
                         My Account
                       </a>
                     </li>
                     <li>
-                      <a href="/cart" className=' block px-4 py-2 text-gray-800 hover:bg-gray-200'>
+                      <a href="/user/cart" className=' block px-4 py-2 text-gray-800 hover:bg-gray-200'>
                         My Cart
                       </a>
                     </li>

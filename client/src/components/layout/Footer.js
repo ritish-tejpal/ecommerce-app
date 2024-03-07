@@ -14,7 +14,7 @@ const Footer = () => {
                     <h3 className="text-lg font-bold mb-2">Social Media Handles</h3>
                     <div className="flex flex-col">
                         <a href="/" className="hover:text-green-700 flex flex-row mt-2">
-                            <span class="[&>svg]:h-5 [&>svg]:w-5">
+                            <span className="[&>svg]:h-5 [&>svg]:w-5">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     fill="currentColor"
@@ -26,7 +26,7 @@ const Footer = () => {
                             <p className="mx-2">Facebook</p>
                         </a>
                         <a href="https://github.com/ritish-tejpal/ecommerce-app" className="hover:text-green-700 flex flex-row mt-2">
-                            <span class="[&>svg]:h-5 [&>svg]:w-5">
+                            <span className="[&>svg]:h-5 [&>svg]:w-5">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     fill="currentColor"

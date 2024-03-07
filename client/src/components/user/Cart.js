@@ -1,88 +1,129 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
-  const [cart, setCart] = useState({})
-  const [products, setProducts] = useState([{}])
-  const navigate = useNavigate()
-  const { id, quantity } = useParams()
+    const [cart, setCart] = useState({});
+    const [products, setProducts] = useState([{}]);
+    const [total, setTotal] = useState(0);
+    const navigate = useNavigate();
 
-
-
-  const getUserCart = async(token) => {
-    axios.get("http://127.0.0.1:8000/shop/cart/", {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-    .then(response => {
-      setCart(response.data)
-    })
-    .catch(error => {
-      console.log(error)
-    })
-  }
-
-  const getCartItems = async(token) => {
-    axios.get("http://127.0.0.1:8000/shop/cart/items/", {
+    const increaseQuantity = (id, quantity) => {
+      const token = localStorage.getItem("token");
+      axios.post('http://127.0.0.1:8000/shop/cart/items/', {
+        product: id,
+        quantity: quantity + 1,
+      }, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .then(response => setProducts(response.data))
-      .catch(error => console.log(error))
-  }
-
-  // const createCartItem = async(token) => {
-  //   axios.post("http://127.0.0.1:8000/shop/cart/items/", {
-  //     headers: {
-  //       'Authorization': `Bearer ${token}`
-  //     }
-  //   },
-  //   {
-  //     'product': id,
-  //     'quantity': (quantity === undefined ? 1 : quantity)
-  //   }, )
-  //   .then(response => console.log(response))
-  //   .catch(error => console.log(error))
-  // }
-
-  // const updateCartItem = async() => {
-  //   // access token, cart id 
-  // }
-
-  // const deleteCartItem = async() => {
-  //   // requires product_id
-  // }
-
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if(token === null){
-      navigate('/login')
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     }
-    getUserCart(token)
-    getCartItems(token)
 
-  }, [navigate])
-    
-  return (
-      <div className="container mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Cart Items</h1>
-        <div className="grid grid-cols-3 gap-4">
-          {
-            products.map((product, index) => {
-              return (
-                <div key={index} className="border p-4">
-                  <h2 className="text-lg font-bold">{product.name}</h2>
-                  <p>Quantity: {product.quantity}</p>
-                  <p>Subtotal: ${product.subtotal}</p>
+    const decreaseQuanity = (id, quantity) => {
+
+    }
+
+    const getUserCart = async (token) => {
+        axios.get("http://127.0.0.1:8000/shop/cart/", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((response) => {
+                setCart(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
+    const getCartItems = async (token) => {
+        axios.get("http://127.0.0.1:8000/shop/cart/items/", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((response) => setProducts(response.data))
+            .catch((error) => console.log(error));
+    };
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token === null) {
+            navigate("/auth/login");
+        }
+        getUserCart(token);
+        getCartItems(token);
+    }, [navigate]);
+
+    return (
+      <div className="container mx-auto py-4">
+        <h1 className="text-2xl font-bold my-4 text-center">Your Cart</h1>
+        <ul className="divide-y divide-gray-200 max-w-4xl mx-auto">
+        <li className="py-4 flex font-bold">
+          <div className="flex-1">Item</div>
+          <div className="flex-1">Quantity</div>
+          <div>Subtotal</div>
+        </li>
+          {products.map((product) => {
+            // setTotal(total + product.subtotal);      // wkfnvogbrwjefvnl
+            return (
+              <li key={product.id} className="py-4 flex items-center">
+                <div className="flex-1">
+                  <h2 className="text-lg font-semibold">
+                    {product.name}
+                  </h2>
+                  <p className="text-gray-600">
+                    {product.description}
+                  </p>
+                  <p className="text-green-600">
+                    Price: ${product.price}
+                  </p>
                 </div>
-              )
-            })}
-          </div>
+                <p className="flex-1">${product.subtotal}</p>
+                <div className="flex items-center">
+                  <button
+                    className="bg-green-500 text-white px-2 py-1 rounded-full mr-2"
+                    onClick={() => decreaseQuanity(product.id, product.quantity)}
+                  >
+                    -
+                  </button>
+                  <p className="text-gray-600">
+                    {product.quantity}
+                  </p>
+                  <button
+                    className="bg-green-500 text-white px-2 py-1 rounded-full ml-2"
+                    onClick={() => increaseQuantity(product.id, product.quantity)}
+                  >
+                    +
+                  </button>
+                  <button className="bg-red-500 hover:bg-red-700 text-white font-bold mx-2 py-2 px-4 rounded object-right">
+                    Delete
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+          <li>
+            <div className="flex items-center justify-between py-2">
+              <h2 className="text-lg font-semibold">Total</h2>
+              <p className="text-green-600 font-semibold mx-auto">
+                ${
+                  products.reduce((acc, product) => acc + product.subtotal, 0)
+                }
+              </p>
+            </div>
+          </li>
+        </ul>
       </div>
-    )
-  }
+    );
+};
 
-export default Cart
+export default Cart;

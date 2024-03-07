@@ -76,6 +76,19 @@ class PurchaseHistory(models.Model):
         return f"{self.user.username} purchased {self.product_id.name} at {self.created_at}"
 
 
+# class AuditLog(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     table_name = models.CharField(max_length=50)
+#     table_id = models.IntegerField()
+#     field_name = models.CharField(max_length=50)
+#     action_type = models.Choices('CREATE', 'UPDATE', 'DELETE')
+#     old_value = models.TextField()
+#     new_value = models.TextField()
+#     timestamp = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"{self.user.username} {self.action_type} {self.table_name} {self.table_id}"
+
 
 # --------------------------------------------------------------------------------------------    
 # Custom Access Token Model; makemigrations error:-

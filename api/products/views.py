@@ -73,10 +73,23 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-
 class CategoryList(generics.ListCreateAPIView):
     queryset = [Category, ProductCategory]
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]                    # AllowAny is used for testing purposes only
 
     
+class SearchProduct(generics.ListAPIView):
+    queryset = Product.objects.all()
+
+    def get(self, request):
+        try:
+            name = request.data.get('name')
+            products = Product.objects.filter(name__contains=name)
+            serializer = ProductSerializer(products, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            print(e)
+            return Response({}, status=status.HTTP_505_HTTP_VERSION_NOT_SUPPORTED)
+        

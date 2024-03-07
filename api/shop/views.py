@@ -92,6 +92,7 @@ class UserCartItemView(generics.ListCreateAPIView):
         } for item in cart_items]
 
         for i, product in enumerate(products):
+            item_details[i]['id'] = product.id
             item_details[i]['price'] = product.price
             item_details[i]['description'] = product.description        
 
@@ -111,14 +112,17 @@ class UserCartItemView(generics.ListCreateAPIView):
         access_token = AccessToken.objects.get(token=token)
         user = access_token.user_id
 
+        quantity = (request.data.get('quantity'))
         product = request.data.get('product')
-        quantity = request.data.get('quantity', 1)
 
         cart = Cart.objects.get(user=user)
 
         try:
             cart_item = CartItem.objects.get(product=product, cart=cart)
-            return Response({'message': 'cart item already exists', 'data': CartItemSerializer(cart_item).data}, status=status.HTTP_400_BAD_REQUEST)
+            cart_item.quantity = quantity
+            cart_item.subtotal = cart_item.product.price * cart_item.quantity
+            cart_item.save()
+            return UserCartItemView.get(self, request)
         
         except CartItem.DoesNotExist:
             product = Product.objects.get(id=product)

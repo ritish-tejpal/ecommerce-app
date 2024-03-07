@@ -11,7 +11,7 @@ const Accounts = () => {
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token === null) {
-            navigate("/login");
+            navigate("/auth/login");
         }
         axios.get("http://127.0.0.1:8000/accounts/profile/", {
                 headers: {
