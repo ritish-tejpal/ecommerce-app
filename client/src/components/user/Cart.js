@@ -27,31 +27,68 @@ const Cart = () => {
     }
 
     const decreaseQuanity = (id, quantity) => {
+      if(quantity === 1) return deleteItem(id);
 
+      const token = localStorage.getItem("token");
+      axios.post('http://127.0.0.1:8000/shop/cart/items/', {
+        product: id,
+        quantity: quantity - 1,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     }
 
-    const getUserCart = async (token) => {
-        axios.get("http://127.0.0.1:8000/shop/cart/", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then((response) => {
-                setCart(response.data);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    };
+    const deleteItem = (id) => {
+      const token = localStorage.getItem("token");
+      axios.delete('http://127.0.0.1:8000/shop/cart/items/', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          product: id,
+        },
+      })
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
+
+    // const getUserCart = async (token) => {
+    //     axios.get("http://127.0.0.1:8000/shop/cart/", {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`,
+    //             },
+    //         })
+    //         .then((response) => {
+    //             setCart(response.data);
+    //         })
+    //         .catch((error) => {
+    //             console.log(error);
+    //         });
+    // };
 
     const getCartItems = async (token) => {
-        axios.get("http://127.0.0.1:8000/shop/cart/items/", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then((response) => setProducts(response.data))
-            .catch((error) => console.log(error));
+      axios.get("http://127.0.0.1:8000/shop/cart/items/", {
+              headers: {
+                  Authorization: `Bearer ${token}`,
+              },
+          })
+          .then((response) => {
+              setProducts(response.data);
+              localStorage.setItem("cart", JSON.stringify(response.data));
+          })
+          .catch((error) => console.log(error));
     };
 
     useEffect(() => {
@@ -59,7 +96,7 @@ const Cart = () => {
         if (token === null) {
             navigate("/auth/login");
         }
-        getUserCart(token);
+        // getUserCart(token);
         getCartItems(token);
     }, [navigate]);
 
@@ -67,13 +104,12 @@ const Cart = () => {
       <div className="container mx-auto py-4">
         <h1 className="text-2xl font-bold my-4 text-center">Your Cart</h1>
         <ul className="divide-y divide-gray-200 max-w-4xl mx-auto">
-        <li className="py-4 flex font-bold">
-          <div className="flex-1">Item</div>
-          <div className="flex-1">Subtotal</div>
-          <div>Quantity</div>
-        </li>
+          <li className="py-4 flex font-bold">
+            <div className="flex-1">Item</div>
+            <div className="flex-1">Subtotal</div>
+            <div>Quantity</div>
+          </li>
           {products.map((product) => {
-            // setTotal(total + product.subtotal);      // wkfnvogbrwjefvnl
             return (
               <li key={product.id} className="py-4 flex items-center">
                 <div className="flex-1">
@@ -104,7 +140,10 @@ const Cart = () => {
                   >
                     +
                   </button>
-                  <button className="bg-red-500 hover:bg-red-700 text-white font-bold mx-2 py-2 px-4 rounded object-right">
+                  <button 
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold mx-2 py-2 px-4 rounded object-right"
+                    onClick={() => deleteItem(product.id)}
+                  >
                     Delete
                   </button>
                 </div>
@@ -119,6 +158,14 @@ const Cart = () => {
                   products.reduce((acc, product) => acc + product.subtotal, 0)
                 }
               </p>
+            </div>
+            <div>
+              <button
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => navigate("/user/checkout")}
+              >
+                Checkout
+              </button>
             </div>
           </li>
         </ul>

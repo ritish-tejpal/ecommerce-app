@@ -5,6 +5,7 @@ import axios from "axios";
 const Products = () => {
     const [display, setDisplay] = useState("Grid");
     const [products, setProducts] = useState([]);
+    const [images, setImages] = useState([]);
 
     const toggleDisplay = () => {
         if(display === "List") {
@@ -17,7 +18,8 @@ const Products = () => {
     useEffect(() => {
         axios.get("http://127.0.0.1:8000/products/")
         .then((response) => {
-            setProducts(response.data);
+            setProducts(response.data.products);
+            setImages(response.data.images);
         })
         .catch((error) => {
             console.log(error);

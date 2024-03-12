@@ -19,15 +19,11 @@ const Login = () => {
                 password: values.password,
             })
             .then((response) => {
-                console.log(response.data.data);
                 localStorage.setItem("token", response.data.data.access_token);
                 localStorage.setItem(
                     "refresh",
                     response.data.data.refresh_token
                 );
-
-                console.log(localStorage.getItem("token"));
-                console.log(localStorage.getItem("refresh"));
                 navigate("/user/accounts");
             })
             .catch((error) => {

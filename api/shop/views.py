@@ -183,5 +183,5 @@ class UserCartItemView(generics.ListCreateAPIView):
         
         cart_item = CartItem.objects.get(cart=cart, product=product)
         cart_item.delete()
-        return Response({'message': 'cart item deleted'}, status=status.HTTP_200_OK)
+        return UserCartItemView.get(self, request)
     

@@ -28,7 +28,7 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Review for {self.product_id.name}"
+        return f"Review for {self.product.name}"
     
 
 class Category(models.Model):
@@ -46,11 +46,11 @@ class ProductCategory(models.Model):
     modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.product_id.name} in {self.category_id.name}"
+        return f"{self.product.name} in {self.category.name}"
 
 
 def productFile(instance, filename):
-    return '/'.join(['products/assets', str(instance.name), filename])
+    return '/'.join(['products/assets', str(instance.product.name), filename])
 
 class Image(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -59,5 +59,5 @@ class Image(models.Model):
     modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Image for {self.product_id.name}"
+        return f"Image for {self.product.name}"
     

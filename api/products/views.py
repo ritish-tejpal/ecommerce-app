@@ -10,7 +10,14 @@ from .serializers import *
 class ProductList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [AllowAny]                 # AllowAny is used for testing purposes only
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        products = Product.objects.all()
+        images = Image.objects.filter(product_id__in=products)
+        products_serializer = ProductSerializer(products, many=True)
+        images_serializer = ImageSerializer(images, many=True)
+        return Response({'products': products_serializer.data, 'images': images_serializer.data}, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
         try:

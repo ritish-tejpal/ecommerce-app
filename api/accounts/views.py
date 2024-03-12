@@ -8,7 +8,8 @@ from django.utils.html import strip_tags
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMultiAlternatives
-from django.http import HttpRequest, JsonResponse
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpRequest
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -27,7 +28,7 @@ from rest_framework import serializers
 class CreateUserView(generics.CreateAPIView):
 
     '''
-    - View to handle user creation \n
+    - View to handle user creation 
     '''
 
     queryset = User.objects.all()
@@ -37,30 +38,20 @@ class CreateUserView(generics.CreateAPIView):
         data = request.data
         user_serializer = UserSerializer(data=data)
         
-        # if not user_serializer.exists():
-        #     return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        # else:
         try:
             user_serializer.is_valid(raise_exception=True)
             user_serializer.save()
             return CreateOTPView().send_otp_mail(data.get('email'))
         except serializers.ValidationError as e:
             return Response({'message': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
-        # if User.objects.filter(email=data.get('email')).exists():
-        #     return Response({'message': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
-        # user_serializer.is_valid(raise_exception=True)
-        # user_serializer.save() 
-        # return CreateOTPView().send_otp_mail(data.get('email'))
-        
-
+  
 
 class CreateOTPView(generics.GenericAPIView):
 
     '''
-    - View to handle sending OTP to user email \n
-    - Supports POST method to send OTP to existing user emails \n
-    - Improve functionality: verification via button click in email? \n
+    - View to handle sending OTP to user email 
+    - Supports POST method to send OTP to existing user emails 
+    - Improve functionality: verification via button click in email? 
     '''
 
     serializer_class = UserSerializer
@@ -100,7 +91,7 @@ class CreateOTPView(generics.GenericAPIView):
 class VerifyOTPView(generics.GenericAPIView):
 
     '''
-    - View to handle verification of OTP \n
+    - View to handle verification of OTP 
     '''
 
     serializer_class = UserSerializer
@@ -127,11 +118,10 @@ class VerifyOTPView(generics.GenericAPIView):
         return Response({'message': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
     
 
-
 class LoginView(generics.CreateAPIView):
 
     '''
-    - View to handle user login \n
+    - View to handle user login 
     - Login can only be done after user has been verified 
     '''
 
@@ -179,23 +169,32 @@ class LogoutView(generics.GenericAPIView):
     '''
 
     def post(self, request):
-        token = request.headers['Authorization']
-        access_token = AccessToken.objects.get(token=token.split(' ')[1])
-        refresh_token = RefreshToken.objects.get(access_token=access_token)
-        access_token.delete()
-        refresh_token.delete()
+        try:
+            authorization_header = request.headers.get('Authorization')
+            if authorization_header:
+                _, token = authorization_header.split()
 
+                access_token = AccessToken.objects.get(token=token)
+                refresh_token = RefreshToken.objects.filter(access_token=access_token).first()
+                
+                access_token.delete()
 
-        return Response({'message':'User logged out'}, status=status.HTTP_200_OK)
-
+                if refresh_token:
+                    refresh_token.delete()
+                return Response({'message': 'User logged out successfully'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'Authorization header is missing'}, status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist:
+            return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class GetPublicAccessTokenView(oauth2_provider.views.TokenView):
     
         '''
-        - View to get public access token using client credentials \n
-        - Requires 'username' and 'password' \n
-        - Evaluate need for PublicTokenAccessPermission?
+        - View to get public access token using client credentials
+        - Requires 'username' and 'password'
         '''
     
         permission_classes = [PublicTokenAccessPermission,]
@@ -211,6 +210,26 @@ class GetPublicAccessTokenView(oauth2_provider.views.TokenView):
         def post(self, request, *args, **kwargs):
             return super(GetPublicAccessTokenView, self).post(request, *args, **kwargs)
 
+
+class RefreshTokenView(oauth2_provider.views.TokenView):
+        
+        '''
+        - View to refresh access token using refresh token
+        - Requires 'refresh_token' in request body
+        '''
+    
+        permission_classes = [PrivateTokenAccessPermission,]
+    
+        @method_decorator(csrf_exempt)
+        def dispatch(self, request, *args, **kwargs):
+            request.POST = request.POST.copy()
+            request.POST['grant_type'] = 'refresh_token'
+            request.POST['client_id'] = settings.CLIENT_ID
+            request.POST['client_secret'] = settings.CLIENT_SECRET
+            return super(RefreshTokenView, self).dispatch(request, *args, **kwargs)
+    
+        def post(self, request, *args, **kwargs):
+            return super(RefreshTokenView, self).post(request, *args, **kwargs)
 
 
 class UserDetailView(generics.CreateAPIView,
