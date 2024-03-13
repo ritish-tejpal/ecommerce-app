@@ -83,20 +83,17 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 class CategoryList(generics.ListCreateAPIView):
     queryset = [Category, ProductCategory]
     serializer_class = CategorySerializer
-    permission_classes = [AllowAny]                    # AllowAny is used for testing purposes only
-
+    permission_classes = [AllowAny]
     
 class SearchProduct(generics.ListAPIView):
     queryset = Product.objects.all()
 
     def get(self, request):
         try:
-            name = request.data.get('name')
-            products = Product.objects.filter(name__contains=name)
-            serializer = ProductSerializer(products, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            name = self.request.query_params.get('name')
+            products = Product.objects.filter(name__startswith=name).values_list('name', flat=True)
+            return Response(products, status=status.HTTP_200_OK)
         
         except Exception as e:
-            print(e)
-            return Response({}, status=status.HTTP_505_HTTP_VERSION_NOT_SUPPORTED)
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
         

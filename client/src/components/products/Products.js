@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CardDisplay from "./display/CardDisplay";
 import axios from "axios";
+import { ListDisplay } from "./display/ListDisplay";
 
 const Products = () => {
     const [display, setDisplay] = useState("Grid");
@@ -32,7 +33,7 @@ const Products = () => {
                 <div className="flex justify-center py-4 relative">
                     <h1 className="font-bold text-5xl">Products</h1>
                     <button 
-                        className="absolute right-1/4 top-1/3 w-28 p-2 bg-green-400 text-green-200 rounded-lg hover:bg-green-500 hover:text-green-100" 
+                        className="absolute right-1/4 top-1/3 w-28 p-2 bg-green-400 text-green-200 rounded-lg hover:bg-green-500 hover:text-green-100 focus:outline-none" 
                         onClick={toggleDisplay}
                     >
                         {display}
@@ -41,7 +42,13 @@ const Products = () => {
                 <div className="grid grid-cols-3 gap-4 p-10">
                     {products.map((product) => {
                         return (
-                            <CardDisplay product={product} />
+                            <div className="col-span-1" key={product.id}>
+                                {display === "Grid" ? (
+                                    <CardDisplay product={product} image={images[product.id]} />
+                                ) : (
+                                    <ListDisplay product={product} image={images[product.id]} />
+                                )}
+                            </div>
                         )
                     })}
                 </div>
