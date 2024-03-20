@@ -17,7 +17,11 @@ const Products = () => {
     }
 
     useEffect(() => {
-        axios.get("http://127.0.0.1:8000/products/")
+        axios.get("http://127.0.0.1:8000/products/", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            }
+        })
         .then((response) => {
             setProducts(response.data.products);
             setImages(response.data.images);

@@ -27,16 +27,9 @@ class UserCartView(generics.ListAPIView):
         '''
         - Method to get user cart id
         '''
-        if 'Authorization' not in request.headers:
-            return Response({'error': 'No token provided'}, status=status.HTTP_401_UNAUTHORIZED)
         
-        bearer, token = request.headers.get('Authorization').split(' ')
-        if bearer != 'Bearer':
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        access_token = AccessToken.objects.get(token=token)
-        user_id = access_token.user_id
-        user = User.objects.get(id=user_id)
+        user = request.user
+
         try:
             cart = Cart.objects.get(user=user)
             serializer = CartSerializer(cart)
@@ -73,11 +66,8 @@ class UserCartItemView(generics.ListCreateAPIView):
         - Get all items in a users cart
         '''
 
-        token = request.headers.get('Authorization').split(' ')[1]
+        user = request.user
         
-        access_token = AccessToken.objects.get(token=token)
-        user = access_token.user_id
-
         cart = Cart.objects.get(user=user)
         cart_items = CartItem.objects.filter(cart=cart)
 
@@ -92,6 +82,7 @@ class UserCartItemView(generics.ListCreateAPIView):
         } for item in cart_items]
 
         for i, product in enumerate(products):
+            item_details[i]['stripe_price_id'] = product.stripe_price_id
             item_details[i]['id'] = product.id
             item_details[i]['price'] = product.price
             item_details[i]['description'] = product.description        

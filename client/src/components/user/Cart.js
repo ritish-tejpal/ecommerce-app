@@ -64,20 +64,6 @@ const Cart = () => {
       });
     }
 
-    // const getUserCart = async (token) => {
-    //     axios.get("http://127.0.0.1:8000/shop/cart/", {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`,
-    //             },
-    //         })
-    //         .then((response) => {
-    //             setCart(response.data);
-    //         })
-    //         .catch((error) => {
-    //             console.log(error);
-    //         });
-    // };
-
     const getCartItems = async (token) => {
       axios.get("http://127.0.0.1:8000/shop/cart/items/", {
               headers: {
@@ -86,17 +72,39 @@ const Cart = () => {
           })
           .then((response) => {
               setProducts(response.data);
-              localStorage.setItem("cart", JSON.stringify(response.data));
           })
           .catch((error) => console.log(error));
     };
+
+    const handleCheckout = () => {
+      const prod_cart = products.map((product) => {
+        return {
+          price: product.stripe_price_id,
+          quantity: product.quantity,
+        }
+      })
+
+      axios.post('http://127.0.0.1:8000/orders/checkout/', prod_cart, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": 'application/json'
+        }
+      })
+      .then((response) => {
+        if(response.status === 201){
+          window.location.href = response.data;
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token === null) {
             navigate("/auth/login");
         }
-        // getUserCart(token);
         getCartItems(token);
     }, [navigate]);
 
@@ -162,7 +170,7 @@ const Cart = () => {
             <div>
               <button
                 className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => navigate("/user/checkout")}
+                onClick={handleCheckout}
               >
                 Checkout
               </button>

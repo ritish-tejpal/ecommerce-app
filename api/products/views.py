@@ -3,14 +3,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 
+from project.permissions import PublicTokenAccessPermission
+
 from .models import *
 from .serializers import *
+
+import stripe
+from django.conf import settings
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 class ProductList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [PublicTokenAccessPermission]
 
     def get(self, request):
         products = Product.objects.all()
@@ -19,12 +25,33 @@ class ProductList(generics.ListCreateAPIView):
         images_serializer = ImageSerializer(images, many=True)
         return Response({'products': products_serializer.data, 'images': images_serializer.data}, status=status.HTTP_200_OK)
 
-    def perform_create(self, serializer):
-        try:
-            serializer.save(created_by=self.request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
+        data = request.data
+        serializer = ProductSerializer(data=data)
+        if serializer.is_valid():
+            try:                
+                serializer.save(created_by=self.request.user)
+
+                stripe_product = stripe.Product.create(
+                    name=serializer.data['name'],
+                    description=serializer.data['description'],
+                    metadata={'product_id': serializer.data['id']}
+                )
+                
+                stripe_price = stripe.Price.create(
+                    currency='inr',
+                    unit_amount_decimal=(serializer.validated_data['price']),
+                    product=stripe_product['id']
+                )
+                
+                serializer.update(serializer.instance, {'stripe_price_id': stripe_price['id']})
+                
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                        
+            except Exception as e:
+                print(e)
+                return Response({'message': 'error creating product'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
