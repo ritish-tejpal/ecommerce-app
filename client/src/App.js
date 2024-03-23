@@ -10,7 +10,7 @@ import ProductRoutes from "./components/products/ProductRoutes";
 
 function App() {
     return (
-        <div className="App">
+        <div className='font-serif'>
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route index element={<Home />} />

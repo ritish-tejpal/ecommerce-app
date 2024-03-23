@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import checkmark from '../../assets/checkmark.png'
 
 const CheckoutSuccess = () => {
     const params = new URLSearchParams(window.location.search)
     const session_id = params.get('session_id')
     const [invoice, setInvoice] = useState({})
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const getCheckoutSession = async () => {
@@ -13,6 +15,8 @@ const CheckoutSuccess = () => {
             })
             .then(response => {
                 setInvoice(response.data)
+                setLoading(false)
+                console.log(response.data)
             })
             .catch(error => {
                 console.log(error)
@@ -23,13 +27,41 @@ const CheckoutSuccess = () => {
     }, [session_id])
 
     return (
-        <div class="max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg my-5 mx-auto">
-        <div class="p-5">
-            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">Noteworthy technology acquisitions 2021</h5>
-        <p class="mb-3 font-normal text-gray-700">Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p>
-        
-    </div>
-</div>
+        <div class="max-w-xl bg-white border border-gray-200 rounded-lg shadow-lg my-10 mx-auto">
+            <div class="p-4 flex justify-center items-center">
+                <img src={checkmark} alt="checkmark" class="w-16 h-16" />
+            </div>
+            <div class="p-5">
+                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 text-center">
+                    Your order has been successfully placed!
+                </h5>
+
+                {!loading && 
+                <div>
+                    <div class="flex justify-between items-center mt-5">
+                        <p class="text-sm text-gray-700">Order ID</p>
+                        <p class="text-sm text-gray-900 font-bold">{invoice.order.id}</p>
+                    </div>
+                    <div class="flex justify-between items-center mt-5">
+                        <p class="text-sm text-gray-700">Amount</p>
+                        <p class="text-sm text-gray-900 font-bold">${invoice.order.total}</p>
+                    </div>
+                    <div class="flex justify-between items-center mt-5">
+                        <p class="text-sm text-gray-700">Payment Status</p>
+                        <p class="text-sm text-gray-900 font-bold">{invoice.payment_status}</p>
+                    </div>
+                    <div class="flex justify-between items-center mt-5">
+                        <p class="text-sm text-gray-700">Payment Method</p>
+                        <p class="text-sm text-gray-900 font-bold">{invoice.order_payment.payment_type}</p>
+                    </div>
+                    <div class="flex justify-between items-center mt-5">
+                        <p class="text-sm text-gray-700">Order Date</p>
+                        <p class="text-sm text-gray-900 font-bold">{invoice.order.date}</p>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
     )
 }
 

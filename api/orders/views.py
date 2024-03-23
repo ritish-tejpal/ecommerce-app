@@ -56,7 +56,7 @@ class StripeWebhook(APIView):
 
         try:
             event = stripe.Webhook.construct_event(
-                payload, header, 'whsec_9b8cabcf4f6d8bd7153d6d1d4c40a367aaf683f17c8e9d85312cadf89c96dd58'
+                payload, header, settings.STRIPE_WEBHOOK_SECRET
             )
         except ValueError as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
@@ -108,6 +108,7 @@ class CreateOrder(generics.CreateAPIView):
                     product=product,
                     quantity=item.quantity,
                 )
+                Product.objects.filter(id=product.id).update(quantity=product.quantity - item.quantity)
 
             return Response(status=status.HTTP_201_CREATED)
 
