@@ -12,6 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 
 import oauth2_provider.views
 from oauth2_provider.models import AccessToken, RefreshToken
@@ -149,14 +150,13 @@ class LoginView(generics.CreateAPIView):
 
                 token_response = GetPublicAccessTokenView().dispatch(token_request, *args, **kwargs)
                 token_data = json.loads(token_response.content)
-                
+
                 return Response({'message':'User logged in', 'data': token_data}, status=status.HTTP_200_OK)
 
             except Exception as e:
                 print(f'Error: {e}')
                 return Response({'message':'Error logging in'}, status=status.HTTP_400_BAD_REQUEST)
 
-        
         return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
     
 

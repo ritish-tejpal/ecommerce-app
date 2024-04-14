@@ -27,6 +27,7 @@ const Verify = () => {
 
     return (
     <div className="main">
+        <h1>Verify</h1>
         <Form className="main" onSubmit={e => e.preventDefault()}>
             <TextField
                 variant='outlined'
@@ -35,13 +36,13 @@ const Verify = () => {
                 label='Enter your OTP'
                 placeholder='Enter your OTP'
             /> <br /><br />
-            <Button 
+            <button 
                 type="submit"
-                variant="contained"
+                // variant="contained"
                 color="primary"
                 onClick={handleVerify}
-            > Verify 
-            </Button>
+            > Verify
+            </button>
         </Form>
     </div>
     );

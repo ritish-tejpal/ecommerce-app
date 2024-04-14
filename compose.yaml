@@ -1,7 +1,9 @@
 services:
   api:
-    image: python:3
-    command: sh -c "python manage.py migrate && python manage.py runserver"
+    build:
+      dockerfile: ./api/Dockerfile
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    user: root
     volumes:
       - ./api:/app
     ports:
@@ -17,7 +19,8 @@ services:
       - ecom
   
   db:
-    image: postgres:latest
+    image: postgres:16.2-bullseye
+    user: root
     environment:
       POSTGRES_DB: ecom_app
       POSTGRES_USER: admin
@@ -26,13 +29,15 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./dumpfile.sql:/docker-entrypoint-initdb.d/dumpfile.sql
+      - data:/var/lib/postgresql/data
     networks:
       - ecom
 
   client:
-    image: node:latest
-    command: bash -c "npm install && npm start"
+    build:
+      dockerfile: ./client/Dockerfile
+    command: bash -c "npm install && npm run dev"
     volumes:
       - ./client:/app
     ports:
@@ -41,7 +46,8 @@ services:
       - ecom
 
 volumes:
-  postgres_data:
+  data:
+
 
 networks:
   ecom:

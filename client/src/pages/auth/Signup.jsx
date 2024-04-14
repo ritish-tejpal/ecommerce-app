@@ -28,7 +28,7 @@ const Signup = () => {
             })
             .then((response) => {
                 if(response.status === 200){
-                    navigate("/verify", { state: { email: values.email } });
+                    navigate("/auth/verify", { state: { email: values.email } });
                 }
                 else if(response.status === 400){
                     console.log("User already exists. Get a new verification OTP at this link");

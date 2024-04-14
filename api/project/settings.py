@@ -110,11 +110,17 @@ DATABASES = {
         'NAME': 'ecom_app',
         'USER': 'admin',
         'PASSWORD': '123',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
 
 
 # Password validation
