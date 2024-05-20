@@ -32,7 +32,7 @@ const Products = () => {
     }, [])
 
     return(
-        <div classname="container static mx-auto items-center py-4">
+        <div className="container static mx-auto items-center py-4">
             <div className="">
                 <div className="flex justify-center py-4 relative">
                     <h1 className="font-bold text-5xl">Products</h1>

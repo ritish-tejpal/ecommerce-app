@@ -1,17 +1,14 @@
-FROM node:18-slim
+FROM node:16
 
 WORKDIR /app/client
 
-# To be used with docker-compose up
-COPY /client/package.json /client/package-lock.json ./
-# To be used with docker build
-# COPY package.json package-lock.json ./
+COPY ./package.json ./package-lock.json ./
+
 RUN npm install
+
+RUN npm install -g vite
 
 COPY . .
 EXPOSE 5173
-
-ENV NODE_ENV=production
-ENV PATH=$PATH
 
 CMD ["npm", "run", "dev"]

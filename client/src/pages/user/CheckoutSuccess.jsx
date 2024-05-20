@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import checkmark from '../../assets/checkmark.png'
+// import checkmark from '../../assets/checkmark.png'
 
 const CheckoutSuccess = () => {
     const params = new URLSearchParams(window.location.search)
@@ -29,7 +29,8 @@ const CheckoutSuccess = () => {
     return (
         <div className="max-w-xl bg-white border border-gray-200 rounded-lg shadow-lg my-10 mx-auto">
             <div className="p-4 flex justify-center items-center">
-                <img src={checkmark} alt="checkmark" className="w-16 h-16" />
+                {/* <img src={checkmark} alt="checkmark" className="w-16 h-16" /> */}
+                image placeholder
             </div>
             <div className="p-5">
                 <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 text-center">

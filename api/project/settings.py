@@ -110,7 +110,8 @@ DATABASES = {
         'NAME': 'ecom_app',
         'USER': 'admin',
         'PASSWORD': '123',
-        'HOST': 'db',
+        # 'HOST': 'localhost',        # For local
+        'HOST': 'db',             # For docker
         'PORT': '5432',
     }
 }

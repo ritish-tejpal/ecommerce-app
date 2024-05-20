@@ -1,8 +1,8 @@
 import React from "react";
 import axios from "axios";
 
-import Button from "@mui/material/Button";
-import { TextField } from "@mui/material";
+// import Button from "@mui/material/Button";
+// import { TextField } from "@mui/material";
 import { Form, Field } from "formik";
 
 import { useLocation } from "react-router-dom";
@@ -29,7 +29,7 @@ const Verify = () => {
     <div className="main">
         <h1>Verify</h1>
         <Form className="main" onSubmit={e => e.preventDefault()}>
-            <TextField
+            <Field
                 variant='outlined'
                 name='otp'
                 type='text'

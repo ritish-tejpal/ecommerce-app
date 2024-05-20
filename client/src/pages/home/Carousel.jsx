@@ -1,31 +1,43 @@
-import React from "react"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
+// import React from "react"
+// import {
+//   Carousel,
+//   CarouselContent,
+//   CarouselItem,
+//   CarouselNext,
+//   CarouselPrevious,
+// } from "@/components/ui/carousel"
 
 
-const HomeCarousel = () => {
+// const HomeCarousel = () => {
+//   return (
+//     <Carousel>
+//       <CarouselPrevious>Previous</CarouselPrevious>
+//       <CarouselNext>Next</CarouselNext>
+//       <CarouselContent>
+//         <CarouselItem>
+//           <img src="https://via.placeholder.com/800x400" alt="placeholder" />
+//         </CarouselItem>
+//         <CarouselItem>
+//           <img src="https://via.placeholder.com/800x400" alt="placeholder" />
+//         </CarouselItem>
+//         <CarouselItem>
+//           <img src="https://via.placeholder.com/800x400" alt="placeholder" />
+//         </CarouselItem>
+//       </CarouselContent>
+//     </Carousel>
+//   )
+// }
+
+// export default HomeCarousel
+
+import React from 'react'
+
+const Carousel = () => {
   return (
-    <Carousel>
-      <CarouselPrevious>Previous</CarouselPrevious>
-      <CarouselNext>Next</CarouselNext>
-      <CarouselContent>
-        <CarouselItem>
-          <img src="https://via.placeholder.com/800x400" alt="placeholder" />
-        </CarouselItem>
-        <CarouselItem>
-          <img src="https://via.placeholder.com/800x400" alt="placeholder" />
-        </CarouselItem>
-        <CarouselItem>
-          <img src="https://via.placeholder.com/800x400" alt="placeholder" />
-        </CarouselItem>
-      </CarouselContent>
-    </Carousel>
+    <div>
+      Carousel
+    </div>
   )
 }
 
-export default HomeCarousel
+export default Carousel

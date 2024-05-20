@@ -36,12 +36,16 @@ services:
 
   client:
     build:
-      dockerfile: ./client/Dockerfile
-    command: bash -c "npm install && npm run dev"
+      context: ./client
+      dockerfile: Dockerfile
+    command: npm run dev
     volumes:
-      - ./client:/app
+      - ./client:/app/client
     ports:
       - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    working_dir: /app/client
     networks:
       - ecom
 

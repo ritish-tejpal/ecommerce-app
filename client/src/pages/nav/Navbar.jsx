@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import SearchBar from './SearchBar'
 
-import cart from '../../assets/cart.png'
+// import cart from '../../assets/cart.png'
 
 const Navbar = () => {
   const [search, setSearch] = useState(false)
@@ -23,8 +23,9 @@ const Navbar = () => {
   return (
     <nav className=' bg-green-400 p-4 '>
       <div className=' container mx-auto flex justify-between items-center '>
-          <a a href="/" className=' flex items-center space-x-3 px-4 '>
-            <img src={cart} alt="cart-icon" className=' h-8 bg-green-400' />
+          <a href="/" className=' flex items-center space-x-3 px-4 '>
+            {/* <img src={cart} alt="cart-icon" className=' h-8 bg-green-400' /> */}
+            {/* <p>Cart</p> */}
             <div className=' text-3xl text-green-700 '>
               E-Commerce Store
             </div>
